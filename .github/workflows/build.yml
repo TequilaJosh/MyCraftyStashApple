@@ -1,0 +1,32 @@
+# Compile check on GitHub's macOS runners. Until we have a Mac on the desk,
+# this workflow IS our compiler: every push must build for both destinations.
+name: build
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Compile (macOS + iPad)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build macOS
+        run: |
+          set -o pipefail
+          xcodebuild build -project MyCraftyStash.xcodeproj -scheme MyCraftyStash \
+            -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO | tail -60
+
+      - name: Build iPad (Simulator)
+        run: |
+          set -o pipefail
+          xcodebuild build -project MyCraftyStash.xcodeproj -scheme MyCraftyStash \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO | tail -60
