@@ -9,7 +9,8 @@ on:
 jobs:
   build:
     name: Compile (macOS + iPad)
-    runs-on: macos-14
+    # macos-15 ships Xcode 16, which current XcodeGen's project format needs
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
