@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MyCraftyStash.Views.InventoryPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Page"
+             x:DataType="vm:InventoryViewModel"
+             Title="Inventory">
+
+    <Grid RowDefinitions="Auto,*">
+        <SearchBar Grid.Row="0"
+                   Placeholder="Search your stash"
+                   Text="{Binding SearchText}"
+                   SearchCommand="{Binding RefreshCommand}"
+                   Margin="8,4"/>
+
+        <RefreshView Grid.Row="1"
+                     Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Items}"
+                            SelectionMode="None"
+                            RemainingItemsThreshold="8"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                            Margin="12,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3"
+                                     HorizontalItemSpacing="12" VerticalItemSpacing="12"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:StashItem">
+                        <Border StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}"
+                                Padding="10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Page}, x:DataType=ContentPage}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6">
+                                <!-- Product shots are on white; a white well hides letterboxing -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" HeightRequest="120">
+                                    <Image Source="{Binding ThumbUrl}" Aspect="AspectFit" HeightRequest="120"/>
+                                </Border>
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14" MaxLines="2" LineBreakMode="TailTruncation"/>
+                                <Label Text="{Binding Type}" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
+                        <Label Text="Nothing here yet" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Text="Sync your stash from the Windows app, or adjust your search."
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                        <Label Text="{Binding ErrorMessage}"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                               TextColor="{StaticResource ErrorRed}"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+                           VerticalOptions="Center" HorizontalOptions="Center"/>
+    </Grid>
+</ContentPage>

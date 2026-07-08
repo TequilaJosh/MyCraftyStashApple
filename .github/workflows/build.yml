@@ -1,5 +1,7 @@
-# Compile check on GitHub's macOS runners. Until we have a Mac on the desk,
-# this workflow IS our compiler: every push must build for both destinations.
+# Compile check for the Apple targets on GitHub's macOS runners. Until real
+# Mac hardware exists, this workflow IS the Apple compiler: every push must
+# build for iOS (iPad) and Mac Catalyst. The Windows head is built/run
+# locally during development.
 name: build
 on:
   push:
@@ -7,27 +9,22 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Compile (macOS + iPad)
-    # macos-15 ships Xcode 16, which current XcodeGen's project format needs
+  apple:
+    name: Compile (iOS + Mac Catalyst)
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
 
-      - name: Generate Xcode project
-        run: xcodegen generate
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-ios maui-maccatalyst
 
-      - name: Build macOS
-        run: |
-          set -o pipefail
-          xcodebuild build -project MyCraftyStash.xcodeproj -scheme MyCraftyStash \
-            -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO | tail -60
+      - name: Build iOS (simulator, no signing)
+        run: dotnet build MyCraftyStash/MyCraftyStash.csproj -f net10.0-ios -c Release
 
-      - name: Build iPad (Simulator)
-        run: |
-          set -o pipefail
-          xcodebuild build -project MyCraftyStash.xcodeproj -scheme MyCraftyStash \
-            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO | tail -60
+      - name: Build Mac Catalyst
+        run: dotnet build MyCraftyStash/MyCraftyStash.csproj -f net10.0-maccatalyst -c Release

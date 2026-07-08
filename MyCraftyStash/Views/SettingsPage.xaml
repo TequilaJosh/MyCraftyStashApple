@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MyCraftyStash.Views.SettingsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:SettingsViewModel"
+             Title="Settings">
+
+    <VerticalStackLayout Spacing="20" Padding="24" MaximumWidthRequest="520">
+        <Label Text="Account" FontAttributes="Bold" FontSize="18"/>
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
+            <Label Text="Signed in as" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+            <Label Grid.Column="1" Text="{Binding SignedInAs}"/>
+        </Grid>
+        <Button Text="Sign out" Command="{Binding SignOutCommand}" BackgroundColor="{StaticResource ErrorRed}" TextColor="White" HorizontalOptions="Start"/>
+
+        <Label Text="About" FontAttributes="Bold" FontSize="18" Margin="0,20,0,0"/>
+        <Label Text="Version 0.1.0"/>
+        <Label Text="Read-only companion to the My Crafty Stash Windows app. Your stash syncs from the desktop to the cloud; this app browses it."
+               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+    </VerticalStackLayout>
+</ContentPage>
