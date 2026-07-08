@@ -12,6 +12,7 @@
 
             <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:ImageStringConverter x:Key="ImageStringConverter" />
 
             <Color x:Key="ErrorRed">#D9534F</Color>
         </ResourceDictionary>

@@ -1,50 +1,63 @@
 # Port plan: Windows desktop → Mac + iPad (.NET MAUI)
 
-The Windows app is WPF, which doesn't run on Apple platforms. .NET MAUI keeps
-us in C#/XAML/CommunityToolkit.Mvvm (the desktop stack) and adds a Windows
-head so the app can be developed and demoed on a PC without owning a Mac.
-History: the first scaffold was Swift/SwiftUI (commit history has it); it was
-replaced with MAUI so development doesn't require Apple hardware or learning
-a new stack.
+The Mac/iPad app is a **standalone** rebuild of the Windows app — its own
+local SQLite database, full add/edit, no account or cloud dependency — same as
+the desktop. .NET MAUI keeps us in C#/XAML/CommunityToolkit.Mvvm/EF Core (the
+desktop stack) and adds a Windows head so the app runs on a PC without a Mac.
 
-## Phase 1 — Read-only cloud browser (scaffolded)
-- Sign in with an `mcs_` API key; SecureStorage (Keychain/DPAPI). ✅
-- Inventory grid + search + item detail from `/api/items`. ✅
-- Windows head runs locally for development. ✅
-- CI compile checks of `net10.0-ios` + `net10.0-maccatalyst` on GitHub macOS
-  runners. ✅
-- Server side: the `X-Api-Key` support for the read endpoints lives on the
-  website repo's `apple-api-key` branch — **merge after testing** (until then
-  the app's sign-in works, but the items list 401s).
+History: scaffolded first as a Swift/SwiftUI read-only *cloud viewer*, then
+rebuilt as MAUI, then re-scoped to this standalone local-database app (the
+cloud-viewer approach was the wrong shape — the goal is everything the Windows
+app does, on Mac).
 
-## Phase 2 — Feel like an app, not a viewer
-- Type filter (mirror the desktop's multi-select dropdown + subtype chips).
-- Projects list + detail (needs a `/api/projects` endpoint — cloud schema
-  only has `cloud_items` today, so the desktop uploader and API grow first).
-- Image caching; iPad polish (touch targets, context menus).
+## Foundation (done)
+- Ported the 21 EF Core entity models + `InventoryDbContext` from the Windows
+  app, verbatim. `AppPaths` rewritten for MAUI's per-app data dir. ✅
+- `EnsureCreated()` builds the full 21-table schema on first run (verified on
+  the Windows head). ✅
+- Lean local `InventoryService` (list/search/get/add/update/delete/count). ✅
 
-## Phase 3 — Offline cache
-- Local SQLite mirror (`Microsoft.Data.Sqlite` or EF Core, same as desktop)
-  with delta refresh so the stash opens instantly without Wi-Fi.
+## Phase 1 — Inventory (done)
+- Card grid + search, add/edit form, detail view, delete — all local CRUD. ✅
+- Opens straight to Inventory; no sign-in. ✅
 
-## Phase 4 — Editing + two-way sync
-- Cloud API write endpoints with conflict rules (desktop is currently the
-  single writer; last-write-wins per item is the likely starting rule).
+## Phase 2 — Inventory depth
+- Type/subtype/theme filters (mirror the desktop's dropdown + chips).
+- Photos: add/capture/pick images (MediaPicker), multi-image gallery, thumbs.
+- Bought/sold tracking, purchases & sales history, stock adjustments.
+- Config-driven Type/Subtype/Theme lists (desktop reads these from config;
+  decide local defaults vs. an editable settings screen).
+
+## Phase 3 — The other sections
+- Projects (list, detail, linked items, creations).
+- Wishlist, Stock Tracking, Address Book, Calendar, Inspiration.
+- Each is: port the read/query into `InventoryService` (or a sibling
+  service), then build the MAUI page.
+
+## Phase 4 — Import / sync
+- Import an existing Windows `inventory.db` (same schema — likely just a file
+  copy + pointer, or a guided import).
+- Optional: reuse the existing cloud API for cross-device sync later. (The
+  website's `apple-api-key` branch is NOT needed for this standalone app; it
+  was for the abandoned cloud-viewer approach.)
 
 ## Phase 5 — Distribution
-- Apple Developer Program ($99/yr) for signing.
-- Mac: notarized .pkg/.dmg from the website, or Mac App Store.
-- iPad: TestFlight for the wife-test, then App Store.
-- Packaging/signing runs on CI's macOS runners or a rented cloud Mac; a
-  physical Mac is only strictly needed for hands-on UI testing of the Apple
-  builds (Windows head covers day-to-day).
+- Apple Developer Program ($99/yr); notarized Mac build + TestFlight for iPad.
+- A physical Mac is only needed for hands-on Apple UI testing; CI covers
+  "does it build," the Windows head covers day-to-day use.
+
+## Known follow-ups
+- NU1903: EF Core 10's SQLite provider pulls a transitively-flagged
+  `SQLitePCLRaw.lib.e_sqlite3` 2.1.11. Revisit when a patched EF Core 10.0.x /
+  SQLitePCLRaw lands; don't hand-pin the native lib (it must match per-platform
+  for iOS/Mac).
 
 ## What carries over from the desktop codebase
 | Desktop (WPF) | MAUI |
 |---|---|
+| EF Core entity models + DbContext | **Copied verbatim** (same namespaces) |
 | CommunityToolkit.Mvvm VMs | Same package, same patterns |
-| C# models/services | Portable with minor changes |
-| WPF XAML views | Rewritten in MAUI XAML (similar but not compatible) |
-| DPAPI key encryption | `SecureStorage` |
-| EF Core + SQLite | Same (Phase 3) |
+| InventoryService (2,700 lines, WPF-coupled) | Lean re-implementation per screen |
+| WPF XAML views | Rebuilt in MAUI XAML |
+| Windows install-folder DB path | MAUI per-app data dir (`AppPaths`) |
 | Inno Setup + GitHub releases | TestFlight / notarized bundles |

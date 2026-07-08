@@ -6,19 +6,19 @@ namespace MyCraftyStash.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
-    private readonly StashSession _session;
+    private readonly InventoryService _service;
 
-    public SettingsViewModel(StashSession session)
+    public SettingsViewModel(InventoryService service)
     {
-        _session = session;
+        _service = service;
     }
 
-    public string SignedInAs => _session.FirstName ?? "Connected";
+    [ObservableProperty] public partial int ItemCount { get; set; }
+    public string DatabaseLocation => AppPaths.InventoryDbPath;
 
     [RelayCommand]
-    private async Task SignOut()
+    public async Task Load()
     {
-        _session.SignOut();
-        await Shell.Current.GoToAsync("//signin");
+        ItemCount = await _service.GetItemCountAsync();
     }
 }

@@ -6,83 +6,53 @@ using MyCraftyStash.Services;
 
 namespace MyCraftyStash.ViewModels;
 
-/// <summary>Read-only inventory browser: card grid + search, paged from /api/items.</summary>
+/// <summary>The inventory grid: local search + card list, with add/open.</summary>
 public partial class InventoryViewModel : ObservableObject
 {
-    private readonly StashApi _api;
-    private int _page = 1;
-    private int _totalPages = 1;
+    private readonly InventoryService _service;
 
-    public InventoryViewModel(StashApi api)
+    public InventoryViewModel(InventoryService service)
     {
-        _api = api;
+        _service = service;
         SearchText = string.Empty;
     }
 
-    public ObservableCollection<StashItem> Items { get; } = new();
+    public ObservableCollection<Item> Items { get; } = new();
 
     [ObservableProperty] public partial string SearchText { get; set; }
     [ObservableProperty] public partial bool Busy { get; set; }
     [ObservableProperty] public partial bool IsRefreshing { get; set; }
-    [ObservableProperty] public partial string? ErrorMessage { get; set; }
     [ObservableProperty] public partial bool IsEmpty { get; set; }
 
-    private bool _loadedOnce;
-
-    /// <summary>First load when the page appears; no-op afterwards.</summary>
     [RelayCommand]
-    private async Task Appearing()
-    {
-        if (_loadedOnce) return;
-        _loadedOnce = true;
-        await Refresh();
-    }
-
-    [RelayCommand]
-    private async Task Refresh()
-    {
-        await Load(page: 1);
-        IsRefreshing = false;
-    }
-
-    [RelayCommand]
-    private async Task LoadMore()
-    {
-        if (Busy || _page >= _totalPages) return;
-        await Load(page: _page + 1);
-    }
-
-    [RelayCommand]
-    private async Task OpenItem(StashItem item)
-    {
-        await Shell.Current.GoToAsync("itemdetail", new Dictionary<string, object> { ["Item"] = item });
-    }
-
-    private async Task Load(int page)
+    public async Task Load()
     {
         Busy = true;
-        ErrorMessage = null;
         try
         {
-            var result = await _api.GetItemsAsync(page: page, search: SearchText);
-            if (page == 1) Items.Clear();
-            foreach (var item in result.Items)
+            var items = await _service.GetItemsAsync(SearchText);
+            Items.Clear();
+            foreach (var item in items)
                 Items.Add(item);
-            _page = result.Page;
-            _totalPages = result.TotalPages;
-        }
-        catch (StashApiException ex)
-        {
-            ErrorMessage = ex.Message;
-        }
-        catch (Exception)
-        {
-            ErrorMessage = "Couldn't reach the stash service. Pull to refresh to try again.";
         }
         finally
         {
             Busy = false;
+            IsRefreshing = false;
             IsEmpty = Items.Count == 0;
         }
     }
+
+    [RelayCommand]
+    private Task Refresh() => Load();
+
+    [RelayCommand]
+    private Task Search() => Load();
+
+    [RelayCommand]
+    private Task AddItem() => Shell.Current.GoToAsync("itemedit");
+
+    [RelayCommand]
+    private Task OpenItem(Item item) =>
+        Shell.Current.GoToAsync("itemdetail", new Dictionary<string, object> { ["Id"] = item.Id });
 }

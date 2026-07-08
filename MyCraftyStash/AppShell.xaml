@@ -6,14 +6,6 @@
     xmlns:views="clr-namespace:MyCraftyStash.Views"
     Title="My Crafty Stash">
 
-    <!-- Sign-in first: App redirects to //inventory at startup when a stored
-         key exists. The page itself disables the flyout. -->
-    <ShellContent
-        Title="Sign in"
-        Route="signin"
-        FlyoutItemIsVisible="False"
-        ContentTemplate="{DataTemplate views:SignInPage}" />
-
     <FlyoutItem Title="Inventory">
         <ShellContent Route="inventory" ContentTemplate="{DataTemplate views:InventoryPage}" />
     </FlyoutItem>

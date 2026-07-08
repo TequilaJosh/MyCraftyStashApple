@@ -6,17 +6,18 @@
              x:DataType="vm:SettingsViewModel"
              Title="Settings">
 
-    <VerticalStackLayout Spacing="20" Padding="24" MaximumWidthRequest="520">
-        <Label Text="Account" FontAttributes="Bold" FontSize="18"/>
-        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
-            <Label Text="Signed in as" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
-            <Label Grid.Column="1" Text="{Binding SignedInAs}"/>
+    <VerticalStackLayout Spacing="20" Padding="24" MaximumWidthRequest="620">
+        <Label Text="Your stash" FontAttributes="Bold" FontSize="18"/>
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24" RowSpacing="10" RowDefinitions="Auto,Auto">
+            <Label Grid.Row="0" Text="Items" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+            <Label Grid.Row="0" Grid.Column="1" Text="{Binding ItemCount}"/>
+            <Label Grid.Row="1" Text="Database" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DatabaseLocation}" FontSize="12" LineBreakMode="CharacterWrap"/>
         </Grid>
-        <Button Text="Sign out" Command="{Binding SignOutCommand}" BackgroundColor="{StaticResource ErrorRed}" TextColor="White" HorizontalOptions="Start"/>
 
         <Label Text="About" FontAttributes="Bold" FontSize="18" Margin="0,20,0,0"/>
         <Label Text="Version 0.1.0"/>
-        <Label Text="Read-only companion to the My Crafty Stash Windows app. Your stash syncs from the desktop to the cloud; this app browses it."
+        <Label Text="My Crafty Stash for Mac &amp; iPad. Your inventory lives in a database on this device."
                TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
     </VerticalStackLayout>
 </ContentPage>

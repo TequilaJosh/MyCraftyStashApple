@@ -6,11 +6,17 @@
              x:DataType="vm:ItemDetailViewModel"
              Title="{Binding Item.Name}">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" Command="{Binding EditCommand}"/>
+        <ToolbarItem Text="Delete" Command="{Binding DeleteCommand}"/>
+    </ContentPage.ToolbarItems>
+
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20" MaximumWidthRequest="700">
 
             <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White">
-                <Image Source="{Binding Item.ImageUrl}" Aspect="AspectFit" MaximumHeightRequest="320"/>
+                <Image Source="{Binding Item.ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                       Aspect="AspectFit" MaximumHeightRequest="320"/>
             </Border>
 
             <Label Text="Discontinued"
@@ -29,27 +35,16 @@
                 <Label Grid.Row="3" Text="Item #" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
                 <Label Grid.Row="3" Grid.Column="1" Text="{Binding Item.ItemNumber, TargetNullValue='—'}"/>
                 <Label Grid.Row="4" Text="Price" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
-                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Item.PriceDisplay}"/>
-                <Label Grid.Row="5" Text="Purchased" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
-                <Label Grid.Row="5" Grid.Column="1" Text="{Binding Item.DatePurchased, TargetNullValue='—'}"/>
+                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Item.Price, StringFormat='{0:C}', TargetNullValue='—'}"/>
+                <Label Grid.Row="5" Text="Stock" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                <Label Grid.Row="5" Grid.Column="1" Text="{Binding Item.CurrentStock, TargetNullValue='—'}"/>
                 <Label Grid.Row="6" Text="Location" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
                 <Label Grid.Row="6" Grid.Column="1" Text="{Binding Item.Location, TargetNullValue='—'}"/>
-                <Label Grid.Row="7" Text="Stock" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
-                <Label Grid.Row="7" Grid.Column="1" Text="{Binding Item.CurrentStock, TargetNullValue='—'}"/>
+                <Label Grid.Row="7" Text="From" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                <Label Grid.Row="7" Grid.Column="1" Text="{Binding Item.PurchasedFrom, TargetNullValue='—'}"/>
             </Grid>
 
-            <VerticalStackLayout Spacing="6" IsVisible="{Binding Item.HasSentiments}">
-                <Label Text="Sentiments" FontAttributes="Bold" FontSize="18"/>
-                <VerticalStackLayout x:Name="SentimentsList" BindableLayout.ItemsSource="{Binding Item.Sentiments}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <Label Text="{Binding ., StringFormat='•  {0}'}"/>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </VerticalStackLayout>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="6" IsVisible="{Binding Item.HasNotes}">
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding Item.Notes, Converter={StaticResource IsNotNullConverter}}">
                 <Label Text="Notes" FontAttributes="Bold" FontSize="18"/>
                 <Label Text="{Binding Item.Notes}"/>
             </VerticalStackLayout>

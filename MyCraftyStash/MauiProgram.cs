@@ -19,20 +19,22 @@ public static class MauiProgram
             });
 
         // Services
-        builder.Services.AddSingleton<StashSession>();
-        builder.Services.AddSingleton<StashApi>();
+        builder.Services.AddSingleton<InventoryService>();
 
         // ViewModels
-        builder.Services.AddTransient<SignInViewModel>();
         builder.Services.AddSingleton<InventoryViewModel>();
         builder.Services.AddTransient<ItemDetailViewModel>();
+        builder.Services.AddTransient<ItemEditViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
 
-        // Pages (resolved by Shell via DI)
-        builder.Services.AddTransient<SignInPage>();
+        // Pages
         builder.Services.AddSingleton<InventoryPage>();
         builder.Services.AddTransient<ItemDetailPage>();
+        builder.Services.AddTransient<ItemEditPage>();
         builder.Services.AddTransient<SettingsPage>();
+
+        // Create the local database on first run (no-op afterwards).
+        new InventoryService().InitializeAsync().GetAwaiter().GetResult();
 
 #if DEBUG
         builder.Logging.AddDebug();

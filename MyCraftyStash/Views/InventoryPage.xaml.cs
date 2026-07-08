@@ -12,9 +12,10 @@ public partial class InventoryPage : ContentPage
         BindingContext = _vm = vm;
     }
 
+    // Reload every time the list appears so adds/edits/deletes are reflected.
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        _vm.AppearingCommand.Execute(null);
+        _vm.LoadCommand.Execute(null);
     }
 }
