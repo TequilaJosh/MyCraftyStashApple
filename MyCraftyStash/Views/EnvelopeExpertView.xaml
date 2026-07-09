@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.EnvelopeExpertView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:EnvelopeExpertViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="24" MaximumWidthRequest="560">
+
+            <Label Text="Envelope &amp; Box" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+            <Label Text="Enter your card size and we'll size the paper and score lines."
+                   TextColor="{StaticResource StashTextMuted}"/>
+
+            <!-- Mode -->
+            <HorizontalStackLayout Spacing="20">
+                <RadioButton Content="Envelope" GroupName="mode" IsChecked="{Binding IsBoxMode, Converter={StaticResource InvertedBoolConverter}}"/>
+                <RadioButton Content="Box" GroupName="mode" IsChecked="{Binding IsBoxMode}"/>
+            </HorizontalStackLayout>
+
+            <!-- Width -->
+            <Label Text="Width" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Entry Grid.Column="0" Text="{Binding WidthWhole}" Keyboard="Numeric" Placeholder="whole in."/>
+                <Picker Grid.Column="1" ItemsSource="{Binding Fractions}" SelectedItem="{Binding WidthFraction}"/>
+            </Grid>
+
+            <!-- Height / Length -->
+            <Label Text="{Binding HeightLabel}" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Entry Grid.Column="0" Text="{Binding HeightWhole}" Keyboard="Numeric" Placeholder="whole in."/>
+                <Picker Grid.Column="1" ItemsSource="{Binding Fractions}" SelectedItem="{Binding HeightFraction}"/>
+            </Grid>
+
+            <!-- Depth (box only) -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsBoxMode}">
+                <Label Text="Depth" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Grid.Column="0" Text="{Binding DepthWhole}" Keyboard="Numeric" Placeholder="whole in."/>
+                    <Picker Grid.Column="1" ItemsSource="{Binding Fractions}" SelectedItem="{Binding DepthFraction}"/>
+                </Grid>
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Error}" IsVisible="{Binding Error, Converter={StaticResource IsNotNullConverter}}"
+                   TextColor="{StaticResource ErrorRed}"/>
+
+            <!-- Results -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}"
+                    Padding="18" IsVisible="{Binding HasResults}">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Paper size" TextColor="{StaticResource StashTextMuted}"/>
+                        <Label Grid.Column="1" Text="{Binding PaperSize}" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    </Grid>
+                    <!-- Envelope -->
+                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsBoxMode, Converter={StaticResource InvertedBoolConverter}}">
+                        <Label Text="Score line" TextColor="{StaticResource StashTextMuted}"/>
+                        <Label Grid.Column="1" Text="{Binding ScoreLine}" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    </Grid>
+                    <!-- Box -->
+                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsBoxMode}">
+                        <Label Text="First score" TextColor="{StaticResource StashTextMuted}"/>
+                        <Label Grid.Column="1" Text="{Binding BoxFirstScore}" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsBoxMode}">
+                        <Label Text="Second score" TextColor="{StaticResource StashTextMuted}"/>
+                        <Label Grid.Column="1" Text="{Binding BoxSecondScore}" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

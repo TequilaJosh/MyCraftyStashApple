@@ -100,6 +100,7 @@ public class AppNavigator
         "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),
         "sentiment" => _sp.GetRequiredService<SentimentSearchView>(),
         "projects" => _sp.GetRequiredService<ProjectsView>(),
+        "envelope" => _sp.GetRequiredService<EnvelopeExpertView>(),
         "expense" => Report(ReportKind.Expense),
         "sales" => Report(ReportKind.Sales),
         "settings" => _sp.GetRequiredService<SettingsView>(),
