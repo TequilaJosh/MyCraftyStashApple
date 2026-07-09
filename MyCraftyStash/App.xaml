@@ -59,6 +59,73 @@
                 <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
                 <Setter Property="Margin" Value="12,18,0,6" />
             </Style>
+
+            <!-- ── Shared content styles (match the desktop) ── -->
+            <Color x:Key="StashSurface">#F6F2EB</Color>
+            <Color x:Key="StashBadge">#E0DAC9</Color>
+
+            <!-- Page header: breadcrumb (12 muted) + title (28 bold) + subtitle (13 muted) -->
+            <Style x:Key="Breadcrumb" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
+            <Style x:Key="PageTitle" TargetType="Label">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+            </Style>
+            <Style x:Key="PageSubtitle" TargetType="Label">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
+                <Setter Property="Margin" Value="0,4,0,0" />
+            </Style>
+            <Style x:Key="SectionHeader" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+            </Style>
+            <Style x:Key="FieldLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
+
+            <!-- Card: rounded bg card with 1px border (corner 12, pad 16) -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashCard}" />
+                <Setter Property="Stroke" Value="{StaticResource StashBorder}" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                <Setter Property="Padding" Value="16" />
+            </Style>
+            <!-- Panel/section card (corner 14, pad 20) -->
+            <Style x:Key="PanelCard" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}" />
+                <Setter Property="Stroke" Value="{StaticResource StashBorder}" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+                <Setter Property="Padding" Value="20" />
+            </Style>
+
+            <!-- Buttons -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="16,8" />
+            </Style>
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashSidebar}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="16,8" />
+            </Style>
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource ErrorRed}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="16,8" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
