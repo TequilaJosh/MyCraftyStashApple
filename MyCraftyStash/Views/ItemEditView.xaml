@@ -21,46 +21,89 @@
                        IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
                        TextColor="{StaticResource ErrorRed}"/>
 
-                <Label Text="Name *" TextColor="{StaticResource StashText}"/>
+                <!-- Image -->
+                <Border StrokeShape="RoundRectangle 10" StrokeThickness="0" BackgroundColor="White" HeightRequest="160"
+                        IsVisible="{Binding ImageUrl, Converter={StaticResource IsNotNullConverter}}">
+                    <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"/>
+                </Border>
+                <HorizontalStackLayout Spacing="10">
+                    <Button Text="Choose photo" Command="{Binding PickImageCommand}" Style="{StaticResource SecondaryButton}"/>
+                    <Button Text="Remove photo" Command="{Binding ClearImageCommand}"
+                            IsVisible="{Binding ImageUrl, Converter={StaticResource IsNotNullConverter}}"
+                            BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                </HorizontalStackLayout>
+
+                <Label Text="Name *" Style="{StaticResource FieldLabel}"/>
                 <Entry Text="{Binding Name}" Placeholder="e.g. Stitched Rectangles"/>
-
-                <Label Text="Type *" TextColor="{StaticResource StashText}"/>
-                <Entry Text="{Binding Type}" Placeholder="e.g. Die, Stamp, Stencil"/>
-
-                <Label Text="Theme" TextColor="{StaticResource StashText}"/>
-                <Entry Text="{Binding Theme}"/>
-
-                <Label Text="Item number" TextColor="{StaticResource StashText}"/>
-                <Entry Text="{Binding ItemNumber}"/>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
-                        <Label Text="Price" TextColor="{StaticResource StashText}"/>
-                        <Entry Text="{Binding PriceText}" Keyboard="Numeric" Placeholder="0.00"/>
+                        <Label Text="Type *" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding Type}" Placeholder="Die, Stamp, Stencil…"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Column="1" Spacing="4">
-                        <Label Text="Current stock" TextColor="{StaticResource StashText}"/>
-                        <Entry Text="{Binding CurrentStockText}" Keyboard="Numeric"/>
+                        <Label Text="Subtype" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding Subtype}" Placeholder="e.g. Frames, A2"/>
                     </VerticalStackLayout>
                 </Grid>
 
-                <Label Text="Location" TextColor="{StaticResource StashText}"/>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="Theme" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding Theme}"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Item number" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding ItemNumber}"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="Price" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding PriceText}" Keyboard="Numeric" Placeholder="0.00"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Current stock" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding CurrentStockText}" Keyboard="Numeric"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                        <Label Text="Pack size" Style="{StaticResource FieldLabel}"/>
+                        <Entry Text="{Binding PackSizeText}" Keyboard="Numeric"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Stencil layers (conditional) -->
+                <VerticalStackLayout Spacing="4" IsVisible="{Binding ShowStencilLayers}">
+                    <Label Text="Number of layers" Style="{StaticResource FieldLabel}"/>
+                    <Entry Text="{Binding StencilLayersText}" Keyboard="Numeric" Placeholder="e.g. 3"/>
+                </VerticalStackLayout>
+
+                <Label Text="Location" Style="{StaticResource FieldLabel}"/>
                 <Entry Text="{Binding Location}"/>
 
-                <Label Text="Purchased from" TextColor="{StaticResource StashText}"/>
+                <Label Text="Purchased from" Style="{StaticResource FieldLabel}"/>
                 <Entry Text="{Binding PurchasedFrom}"/>
+
+                <HorizontalStackLayout Spacing="10">
+                    <CheckBox IsChecked="{Binding HasDatePurchased}"/>
+                    <Label Text="Date purchased" VerticalOptions="Center" TextColor="{StaticResource StashText}"/>
+                    <DatePicker Date="{Binding DatePurchased}" IsEnabled="{Binding HasDatePurchased}"/>
+                </HorizontalStackLayout>
+
+                <Label Text="Product URL" Style="{StaticResource FieldLabel}"/>
+                <Entry Text="{Binding SiteUrl}" Keyboard="Url" Placeholder="for quick re-purchasing"/>
 
                 <HorizontalStackLayout Spacing="10">
                     <Switch IsToggled="{Binding IsDiscontinued}"/>
                     <Label Text="Discontinued" VerticalOptions="Center" TextColor="{StaticResource StashText}"/>
                 </HorizontalStackLayout>
 
-                <Label Text="Notes" TextColor="{StaticResource StashText}"/>
+                <Label Text="Notes" Style="{StaticResource FieldLabel}"/>
                 <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="90"/>
 
                 <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
-                    <Button Text="Save" Command="{Binding SaveCommand}"
-                            BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    <Button Text="Save" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Cancel" Command="{Binding CancelCommand}"
                             BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
                 </HorizontalStackLayout>

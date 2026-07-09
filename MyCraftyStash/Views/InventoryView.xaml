@@ -35,13 +35,24 @@
                                                       CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="6">
-                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" HeightRequest="120">
-                                    <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
-                                           Aspect="AspectFit" HeightRequest="120"/>
-                                </Border>
+                                <Grid HeightRequest="120">
+                                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White">
+                                        <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"/>
+                                    </Border>
+                                    <Border IsVisible="{Binding IsDiscontinued}" StrokeThickness="0" StrokeShape="RoundRectangle 4"
+                                            BackgroundColor="{StaticResource ErrorRed}" Padding="6,2"
+                                            HorizontalOptions="Start" VerticalOptions="Start" Margin="6">
+                                        <Label Text="Discontinued" FontSize="10" FontAttributes="Bold" TextColor="White"/>
+                                    </Border>
+                                </Grid>
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14"
                                        TextColor="{StaticResource StashText}" MaxLines="2" LineBreakMode="TailTruncation"/>
-                                <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                    <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:C}'}" FontSize="12"
+                                           IsVisible="{Binding Price, Converter={StaticResource IsNotNullConverter}}"
+                                           TextColor="{StaticResource StashText}"/>
+                                </Grid>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
