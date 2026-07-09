@@ -100,6 +100,8 @@ public class AppNavigator
         "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),
         "sentiment" => _sp.GetRequiredService<SentimentSearchView>(),
         "projects" => _sp.GetRequiredService<ProjectsView>(),
+        "expense" => Report(ReportKind.Expense),
+        "sales" => Report(ReportKind.Sales),
         "settings" => _sp.GetRequiredService<SettingsView>(),
         _ => ComingSoon(route),
     };
@@ -108,6 +110,13 @@ public class AppNavigator
     {
         var view = _sp.GetRequiredService<ComingSoonView>();
         view.SetSection(route);
+        return view;
+    }
+
+    private View Report(ReportKind kind)
+    {
+        var view = _sp.GetRequiredService<ReportView>();
+        view.SetKind(kind);
         return view;
     }
 }

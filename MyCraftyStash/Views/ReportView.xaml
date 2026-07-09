@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.ReportView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:svc="clr-namespace:MyCraftyStash.Services"
+             x:DataType="vm:ReportViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <Label Grid.Row="0" Text="{Binding Title}" FontSize="26" FontAttributes="Bold"
+               TextColor="{StaticResource StashText}" Padding="24,18,24,4"/>
+
+        <!-- Total banner -->
+        <Border Grid.Row="1" StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                BackgroundColor="{StaticResource StashCard}" Padding="18,14" Margin="24,4,24,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="{Binding TotalLabel}" FontSize="14" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="{Binding TotalText}" FontSize="26" FontAttributes="Bold"
+                       TextColor="{StaticResource StashPrimary}"/>
+            </Grid>
+        </Border>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Rows}" SelectionMode="None" Margin="20,0">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="svc:ReportRow">
+                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="4,10" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                            <Label Text="{Binding ItemName}" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource StashText}"/>
+                            <Label Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="{Binding QuantityText}" FontSize="13"
+                               TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="{Binding LineTotalText}" FontAttributes="Bold" FontSize="14"
+                               TextColor="{StaticResource StashText}" VerticalOptions="Center" WidthRequest="90"
+                               HorizontalTextAlignment="End"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
+                    <Label Text="{Binding EmptyText}" HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource StashTextMuted}"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+                           VerticalOptions="Center" HorizontalOptions="Center"/>
+    </Grid>
+</ContentView>
