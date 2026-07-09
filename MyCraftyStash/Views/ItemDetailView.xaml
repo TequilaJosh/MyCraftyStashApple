@@ -3,6 +3,8 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
              x:DataType="vm:ItemDetailViewModel">
 
     <Grid RowDefinitions="Auto,*">
@@ -13,46 +15,220 @@
                     BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
             <Label Grid.Column="1" Text="{Binding Item.Name}" FontSize="22" FontAttributes="Bold"
                    TextColor="{StaticResource StashText}" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
-            <Button Grid.Column="2" Text="Edit" Command="{Binding EditCommand}"
-                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-            <Button Grid.Column="3" Text="Delete" Command="{Binding DeleteCommand}"
-                    BackgroundColor="{StaticResource ErrorRed}" TextColor="White"/>
+            <Button Grid.Column="2" Text="Edit" Command="{Binding EditCommand}" Style="{StaticResource PrimaryButton}"/>
+            <Button Grid.Column="3" Text="Delete" Command="{Binding DeleteCommand}" Style="{StaticResource DangerButton}"/>
         </Grid>
 
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="20" Padding="20" MaximumWidthRequest="700">
+            <VerticalStackLayout Spacing="20" Padding="20" MaximumWidthRequest="820">
+
+                <!-- Main image -->
                 <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White">
                     <Image Source="{Binding Item.ImageUrl, Converter={StaticResource ImageStringConverter}}"
                            Aspect="AspectFit" MaximumHeightRequest="320"/>
                 </Border>
 
-                <Label Text="Discontinued" IsVisible="{Binding Item.IsDiscontinued}"
-                       TextColor="{StaticResource ErrorRed}" FontAttributes="Bold"/>
+                <!-- Gallery strip -->
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Photos" Style="{StaticResource SectionHeader}"/>
+                        <Button Grid.Column="1" Text="+ Add Photo" Command="{Binding AddImageCommand}"
+                                Style="{StaticResource SecondaryButton}" FontSize="13"/>
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding Images}" IsVisible="{Binding HasImages}" HeightRequest="90">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ItemImage">
+                                <Grid>
+                                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" WidthRequest="90" HeightRequest="84">
+                                        <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFill"/>
+                                    </Border>
+                                    <Button Text="✕" FontSize="11" Padding="0" WidthRequest="22" HeightRequest="22"
+                                            HorizontalOptions="End" VerticalOptions="Start"
+                                            BackgroundColor="{StaticResource ErrorRed}" TextColor="White" CornerRadius="11"
+                                            Command="{Binding BindingContext.DeleteImageCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
 
+                <!-- Fields -->
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24" RowSpacing="10"
-                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                    <Label Grid.Row="0" Text="Type" TextColor="{StaticResource StashTextMuted}"/>
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                    <Label Grid.Row="0" Text="Type" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="0" Grid.Column="1" Text="{Binding Item.Type, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="1" Text="Subtype" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="1" Text="Subtype" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="1" Grid.Column="1" Text="{Binding Item.Subtype, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="2" Text="Theme" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="2" Text="Theme" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="2" Grid.Column="1" Text="{Binding Item.Theme, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="3" Text="Item #" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="3" Text="Item #" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="3" Grid.Column="1" Text="{Binding Item.ItemNumber, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="4" Text="Price" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="4" Text="Price" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="4" Grid.Column="1" Text="{Binding Item.Price, StringFormat='{0:C}', TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="5" Text="Stock" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="5" Text="Stock" Style="{StaticResource FieldLabel}"/>
                     <Label Grid.Row="5" Grid.Column="1" Text="{Binding Item.CurrentStock, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="6" Text="Location" TextColor="{StaticResource StashTextMuted}"/>
-                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Item.Location, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
-                    <Label Grid.Row="7" Text="From" TextColor="{StaticResource StashTextMuted}"/>
-                    <Label Grid.Row="7" Grid.Column="1" Text="{Binding Item.PurchasedFrom, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="6" Text="Pack size" Style="{StaticResource FieldLabel}"/>
+                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Item.PackSize, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="7" Text="Location" Style="{StaticResource FieldLabel}"/>
+                    <Label Grid.Row="7" Grid.Column="1" Text="{Binding Item.Location, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="8" Text="Purchased from" Style="{StaticResource FieldLabel}"/>
+                    <Label Grid.Row="8" Grid.Column="1" Text="{Binding Item.PurchasedFrom, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="9" Text="Discontinued" Style="{StaticResource FieldLabel}"/>
+                    <Label Grid.Row="9" Grid.Column="1" Text="{Binding Item.IsDiscontinued}" TextColor="{StaticResource StashText}"/>
                 </Grid>
 
-                <VerticalStackLayout Spacing="6" IsVisible="{Binding Item.Notes, Converter={StaticResource IsNotNullConverter}}">
-                    <Label Text="Notes" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource StashText}"/>
+                <VerticalStackLayout Spacing="4" IsVisible="{Binding Item.Notes, Converter={StaticResource IsNotNullConverter}}">
+                    <Label Text="Notes" Style="{StaticResource SectionHeader}"/>
                     <Label Text="{Binding Item.Notes}" TextColor="{StaticResource StashText}"/>
                 </VerticalStackLayout>
+
+                <!-- Sentiments -->
+                <Border Style="{StaticResource PanelCard}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Sentiments" Style="{StaticResource SectionHeader}"/>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Sentiments}" Spacing="4" IsVisible="{Binding HasSentiments}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:SentimentImage">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding ExtractedText}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                        <Button Grid.Column="1" Text="✕" FontSize="12" Padding="8,0" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                                Command="{Binding BindingContext.DeleteSentimentCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry Grid.Column="0" Text="{Binding NewSentiment}" Placeholder="Add a sentiment, e.g. 'thank you'"/>
+                            <Button Grid.Column="1" Text="Add" Command="{Binding AddSentimentCommand}" Style="{StaticResource SecondaryButton}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Purchase history -->
+                <Border Style="{StaticResource PanelCard}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Purchase history" Style="{StaticResource SectionHeader}"/>
+                            <Button Grid.Column="1" Text="+ Add" Command="{Binding StartAddPurchaseCommand}"
+                                    IsVisible="{Binding AddingPurchase, Converter={StaticResource InvertedBoolConverter}}"
+                                    Style="{StaticResource SecondaryButton}" FontSize="13"/>
+                        </Grid>
+                        <Label Text="{Binding PurchaseTotals}" IsVisible="{Binding HasPurchases}" TextColor="{StaticResource StashTextMuted}"/>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Purchases}" Spacing="4">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ItemPurchase">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <Label Text="{Binding DatePurchased, StringFormat='{0:MMM d, yyyy}', TargetNullValue='—'}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" TextColor="{StaticResource StashText}" VerticalOptions="Center">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0} × {1:C} = {2:C}">
+                                                    <Binding Path="Quantity"/>
+                                                    <Binding Path="PricePerItem"/>
+                                                    <Binding Path="TotalPrice"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                        <Button Grid.Column="2" Text="✕" FontSize="12" Padding="8,0" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                                Command="{Binding BindingContext.DeletePurchaseCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <!-- inline add -->
+                        <Grid ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8" IsVisible="{Binding AddingPurchase}">
+                            <Entry Grid.Column="0" Text="{Binding PurchaseQty}" Keyboard="Numeric" Placeholder="Qty"/>
+                            <Entry Grid.Column="1" Text="{Binding PurchasePrice}" Keyboard="Numeric" Placeholder="Price each"/>
+                            <Button Grid.Column="2" Text="Save" Command="{Binding SavePurchaseCommand}" Style="{StaticResource PrimaryButton}" FontSize="13"/>
+                            <Button Grid.Column="3" Text="Cancel" Command="{Binding CancelAddPurchaseCommand}" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sales history -->
+                <Border Style="{StaticResource PanelCard}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Sales history" Style="{StaticResource SectionHeader}"/>
+                            <Button Grid.Column="1" Text="+ Add" Command="{Binding StartAddSaleCommand}"
+                                    IsVisible="{Binding AddingSale, Converter={StaticResource InvertedBoolConverter}}"
+                                    Style="{StaticResource SecondaryButton}" FontSize="13"/>
+                        </Grid>
+                        <Label Text="{Binding SaleTotals}" IsVisible="{Binding HasSales}" TextColor="{StaticResource StashTextMuted}"/>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Sales}" Spacing="4">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ItemSale">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <Label Text="{Binding DateSold, StringFormat='{0:MMM d, yyyy}', TargetNullValue='—'}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" TextColor="{StaticResource StashText}" VerticalOptions="Center">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0} × {1:C} = {2:C}">
+                                                    <Binding Path="Quantity"/>
+                                                    <Binding Path="SalePrice"/>
+                                                    <Binding Path="TotalPrice"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                        <Button Grid.Column="2" Text="✕" FontSize="12" Padding="8,0" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                                Command="{Binding BindingContext.DeleteSaleCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8" IsVisible="{Binding AddingSale}">
+                            <Entry Grid.Column="0" Text="{Binding SaleQty}" Keyboard="Numeric" Placeholder="Qty"/>
+                            <Entry Grid.Column="1" Text="{Binding SalePrice}" Keyboard="Numeric" Placeholder="Sale price each"/>
+                            <Button Grid.Column="2" Text="Save" Command="{Binding SaveSaleCommand}" Style="{StaticResource PrimaryButton}" FontSize="13"/>
+                            <Button Grid.Column="3" Text="Cancel" Command="{Binding CancelAddSaleCommand}" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Related items -->
+                <Border Style="{StaticResource PanelCard}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Related items" Style="{StaticResource SectionHeader}"/>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RelatedItems}" Spacing="4" IsVisible="{Binding HasRelated}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Item">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Name}" TextColor="{StaticResource StashText}" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenRelatedCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Button Grid.Column="1" Text="✕" FontSize="12" Padding="8,0" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                                Command="{Binding BindingContext.RemoveRelatedCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry Grid.Column="0" Text="{Binding RelatedSearch}" Placeholder="Search to link a related item…" ReturnCommand="{Binding SearchRelatedCommand}"/>
+                            <Button Grid.Column="1" Text="Search" Command="{Binding SearchRelatedCommand}" Style="{StaticResource SecondaryButton}"/>
+                        </Grid>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RelatedCandidates}" Spacing="2">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Item">
+                                    <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="{StaticResource StashSidebar}" Padding="10,6">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.AddRelatedCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Name}" TextColor="{StaticResource StashText}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
