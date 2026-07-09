@@ -19,7 +19,9 @@ public class InventoryService
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task<List<Item>> GetItemsAsync(string? search = null, string? type = null)
+    /// <param name="searchMode">null = name/theme/number/sentiment; "name" = name only; "theme" = theme only.</param>
+    public async Task<List<Item>> GetItemsAsync(string? search = null, string? type = null,
+        string? searchMode = null, bool discontinuedOnly = false)
     {
         using var db = new InventoryDbContext();
         IQueryable<Item> query = db.Items.AsNoTracking();
@@ -27,14 +29,22 @@ public class InventoryService
         if (!string.IsNullOrWhiteSpace(type))
             query = query.Where(i => i.Type == type);
 
+        if (discontinuedOnly)
+            query = query.Where(i => i.IsDiscontinued);
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim();
-            query = query.Where(i =>
-                EF.Functions.Like(i.Name, $"%{s}%") ||
-                (i.Theme != null && EF.Functions.Like(i.Theme, $"%{s}%")) ||
-                (i.ItemNumber != null && EF.Functions.Like(i.ItemNumber, $"%{s}%")) ||
-                (i.Sentiments != null && EF.Functions.Like(i.Sentiments, $"%{s}%")));
+            query = searchMode switch
+            {
+                "name" => query.Where(i => EF.Functions.Like(i.Name, $"%{s}%")),
+                "theme" => query.Where(i => i.Theme != null && EF.Functions.Like(i.Theme, $"%{s}%")),
+                _ => query.Where(i =>
+                    EF.Functions.Like(i.Name, $"%{s}%") ||
+                    (i.Theme != null && EF.Functions.Like(i.Theme, $"%{s}%")) ||
+                    (i.ItemNumber != null && EF.Functions.Like(i.ItemNumber, $"%{s}%")) ||
+                    (i.Sentiments != null && EF.Functions.Like(i.Sentiments, $"%{s}%"))),
+            };
         }
 
         return await query.OrderBy(i => i.Name).ToListAsync();

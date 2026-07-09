@@ -7,20 +7,47 @@
              x:Name="Root"
              x:DataType="vm:InventoryViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,*">
 
-        <!-- Header -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,18,24,10">
-            <Label Text="Inventory" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-            <Button Grid.Column="1" Text="+ Add Item" Command="{Binding AddItemCommand}"
-                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-        </Grid>
+        <!-- Header + search + filters -->
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
+            <Label Text="My Crafty Stash  /  Inventory" Style="{StaticResource Breadcrumb}"/>
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <Label Text="Inventory" Style="{StaticResource PageTitle}"/>
+                <Button Grid.Column="1" Text="+ Add Item" Command="{Binding AddItemCommand}"
+                        Style="{StaticResource PrimaryButton}" VerticalOptions="Center"/>
+            </Grid>
+            <Label Text="Manage your craft supplies — search, filter, and add new items."
+                   Style="{StaticResource PageSubtitle}"/>
 
-        <SearchBar Grid.Row="1" Placeholder="Search your stash"
-                   Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
-                   Margin="20,0,20,6"/>
+            <!-- Search row -->
+            <Grid ColumnDefinitions="*,180,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0">
+                <Entry Grid.Column="0" Text="{Binding SearchText}" Placeholder="Search your stash"
+                       ReturnCommand="{Binding SearchCommand}"/>
+                <Picker Grid.Column="1" ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Title="All types"/>
+                <Button Grid.Column="2" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"/>
+                <Button Grid.Column="3" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"/>
+            </Grid>
 
-        <RefreshView Grid.Row="2" Command="{Binding DoRefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <!-- Filter toggles -->
+            <HorizontalStackLayout Spacing="18" Margin="0,10,0,0">
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding NameOnly}"/>
+                    <Label Text="Name only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding ThemeOnly}"/>
+                    <Label Text="Theme only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding DiscontinuedOnly}"/>
+                    <Label Text="Discontinued only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <Label Text="{Binding ResultSummary}" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <RefreshView Grid.Row="1" Command="{Binding DoRefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" Margin="16,0">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="3"
@@ -68,7 +95,7 @@
             </CollectionView>
         </RefreshView>
 
-        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
                            VerticalOptions="Center" HorizontalOptions="Center"/>
     </Grid>
 </ContentView>
