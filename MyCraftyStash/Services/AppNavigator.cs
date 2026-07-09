@@ -62,6 +62,21 @@ public class AppNavigator
         Push(view);
     }
 
+    public void PushProjectDetail(int id)
+    {
+        var view = _sp.GetRequiredService<ProjectDetailView>();
+        (view.BindingContext as ProjectDetailViewModel)?.Init(id);
+        Push(view);
+    }
+
+    /// <summary>Project add (id 0) or edit form.</summary>
+    public void PushProjectEdit(int id)
+    {
+        var view = _sp.GetRequiredService<ProjectEditView>();
+        (view.BindingContext as ProjectEditViewModel)?.Init(id);
+        Push(view);
+    }
+
     public async void Back()
     {
         if (_stack.Count <= 1) return;
@@ -83,6 +98,7 @@ public class AppNavigator
         "wishlist" => _sp.GetRequiredService<WishlistView>(),
         "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),
         "sentiment" => _sp.GetRequiredService<SentimentSearchView>(),
+        "projects" => _sp.GetRequiredService<ProjectsView>(),
         "settings" => _sp.GetRequiredService<SettingsView>(),
         _ => ComingSoon(route),
     };

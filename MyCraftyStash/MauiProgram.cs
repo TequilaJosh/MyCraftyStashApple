@@ -38,6 +38,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<StockTrackerView>();
         builder.Services.AddSingleton<SentimentSearchViewModel>();
         builder.Services.AddSingleton<SentimentSearchView>();
+        builder.Services.AddSingleton<ProjectsViewModel>();
+        builder.Services.AddSingleton<ProjectsView>();
         builder.Services.AddTransient<ComingSoonView>();
 
         // Pushed sub-views (fresh per navigation)
@@ -47,6 +49,10 @@ public static class MauiProgram
         builder.Services.AddTransient<ItemEditView>();
         builder.Services.AddTransient<WishlistEditViewModel>();
         builder.Services.AddTransient<WishlistEditView>();
+        builder.Services.AddTransient<ProjectDetailViewModel>();
+        builder.Services.AddTransient<ProjectDetailView>();
+        builder.Services.AddTransient<ProjectEditViewModel>();
+        builder.Services.AddTransient<ProjectEditView>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();

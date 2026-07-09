@@ -28,5 +28,12 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void AddProject()
+    {
+        _nav.ShowSection("projects");
+        _nav.PushProjectEdit(0);
+    }
+
+    [RelayCommand]
     private Task OpenKoFi() => Launcher.Default.OpenAsync("https://ko-fi.com/mycraftystash");
 }

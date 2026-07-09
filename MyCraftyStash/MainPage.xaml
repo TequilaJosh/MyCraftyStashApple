@@ -134,6 +134,12 @@
                             <Label Text="Projects" Style="{StaticResource NavText}"/>
                         </HorizontalStackLayout>
                     </Border>
+                    <Border Style="{StaticResource NavRow}" Padding="46,7" BackgroundColor="Transparent">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AddProjectCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Add Project" FontSize="13" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                    </Border>
 
                     <Label Text="REPORTS" Style="{StaticResource NavSectionHeader}"/>
 

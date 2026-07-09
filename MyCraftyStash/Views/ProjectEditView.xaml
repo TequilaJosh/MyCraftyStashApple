@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.ProjectEditView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:ProjectEditViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="20,16" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="‹ Back" Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            <Label Grid.Column="1" Text="{Binding PageTitle}" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12" Padding="20,0,20,20" MaximumWidthRequest="620">
+
+                <Label Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                       TextColor="{StaticResource ErrorRed}"/>
+
+                <Label Text="Name *" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Name}" Placeholder="e.g. Birthday card for Mum"/>
+
+                <Label Text="Description" TextColor="{StaticResource StashText}"/>
+                <Editor Text="{Binding Description}" AutoSize="TextChanges" MinimumHeightRequest="70"/>
+
+                <Label Text="Technique" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Technique}" Placeholder="e.g. Watercolor, Die-cutting"/>
+
+                <Label Text="Notes" TextColor="{StaticResource StashText}"/>
+                <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="90"/>
+
+                <Label Text="Tip: linking the supplies you used comes in a later update."
+                       FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+
+                <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
+                    <Button Text="Save" Command="{Binding SaveCommand}"
+                            BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    <Button Text="Cancel" Command="{Binding CancelCommand}"
+                            BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>
