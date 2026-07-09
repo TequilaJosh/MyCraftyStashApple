@@ -40,6 +40,11 @@ Sidebar sections now real (off Coming Soon):
 - **Stock Tracker** — items by stock level, lowest first, colour-coded.
 - **Expense Report / Sales Report** — totals + line items over purchases/sales.
 - **Envelope & Box** — the calculator (pure math port).
+- **Card Builder** — pick a card base + ordered exterior/inside steps (type,
+  linked inventory item, cutting method, mat layer, label), reorder/remove,
+  save/reload. Attached to a project; the detail shows a "How it was made"
+  summary. A working editor on the same data model as the desktop's 7,600-line
+  guided wizard (not a 1:1 replica of that UI).
 
 Still Coming Soon (deliberately deferred — harder/more coupled):
 - **Color Match** — needs the `ColorMatches` table + DMC/OLO floss
@@ -52,10 +57,18 @@ schema) → build the MAUI ContentView(s) → add a `BuildSection` case + any
 `Push…` navigator method → register in DI → swap the route off Coming Soon.
 
 ## Depth still to add to ported sections
-- Link inventory items to a Project from the app (multi-select picker).
 - Item photos: add/capture via MediaPicker, multi-image gallery.
 - Purchases/sales entry on an item (the reports read them; no entry UI yet).
 - Type/theme filters on the Inventory grid (desktop's dropdown + chips).
+- Card Builder: richer per-step editing (decorations/adhesives sub-steps,
+  stacklet die numbers) to approach the desktop wizard's depth.
+- (Done: linking inventory items to a project.)
+
+## Gotcha for contributors
+MAUI DI errors are NOT caught at build time — a ViewModel that needs an
+unregistered service compiles fine and then crashes at runtime (WinUI failfast
+0xc000027b). **Always run the app after adding a ViewModel/Service/View.** The
+Windows head logs unhandled exceptions to `crash.txt` in the app data dir.
 
 ## Phase 4 — Import / sync
 - Import an existing Windows `inventory.db` (same schema — likely just a file
