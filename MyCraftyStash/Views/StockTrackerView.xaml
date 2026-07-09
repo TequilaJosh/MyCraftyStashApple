@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.StockTrackerView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
+             x:DataType="vm:StockTrackerViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Label Grid.Row="0" Text="Stock Tracker" FontSize="26" FontAttributes="Bold"
+               TextColor="{StaticResource StashText}" Padding="24,18,24,10"/>
+
+        <RefreshView Grid.Row="1" Command="{Binding DoRefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" Margin="20,0">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Item">
+                        <Border StrokeShape="RoundRectangle 10" StrokeThickness="0"
+                                BackgroundColor="{StaticResource StashCard}" Padding="14,10" Margin="0,0,0,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <!-- Stock-level dot -->
+                                <Ellipse Grid.Column="0" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"
+                                         Fill="{Binding CurrentStock, Converter={StaticResource StockLevelColorConverter}}"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource StashText}"/>
+                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{Binding CurrentStock, StringFormat='{0} left'}"
+                                       FontAttributes="Bold" FontSize="15" VerticalOptions="Center"
+                                       TextColor="{StaticResource StashText}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
+                        <Label Text="No stock counts yet" FontSize="20" FontAttributes="Bold"
+                               HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
+                        <Label Text="Set a 'Current stock' on your items and they'll show up here, lowest first."
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource StashTextMuted}"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+                           VerticalOptions="Center" HorizontalOptions="Center"/>
+    </Grid>
+</ContentView>

@@ -81,6 +81,8 @@ public class AppNavigator
     {
         "inventory" => _sp.GetRequiredService<InventoryView>(),
         "wishlist" => _sp.GetRequiredService<WishlistView>(),
+        "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),
+        "sentiment" => _sp.GetRequiredService<SentimentSearchView>(),
         "settings" => _sp.GetRequiredService<SettingsView>(),
         _ => ComingSoon(route),
     };

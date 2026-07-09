@@ -29,10 +29,13 @@ app does, on Mac).
   decide local defaults vs. an editable settings screen).
 
 ## Phase 3 — The other sections
-- Projects (list, detail, linked items, creations).
-- Wishlist, Stock Tracking, Address Book, Calendar, Inspiration.
-- Each is: port the read/query into `InventoryService` (or a sibling
-  service), then build the MAUI page.
+- **Wish List — done.** `WishlistService` + `WishlistView`/`WishlistEditView`,
+  wired to the `wishlist` route with priority support.
+- Projects (list, detail, linked items, creations) — next.
+- Stock Tracking, Address Book, Calendar, Inspiration, Color Match.
+- Each is: add a sibling service (list/get/add/update/delete over the shared
+  schema), build the MAUI ContentView(s), add a `BuildSection` case + any
+  `Push…` navigator method, register in DI, and swap the route off Coming Soon.
 
 ## Phase 4 — Import / sync
 - Import an existing Windows `inventory.db` (same schema — likely just a file

@@ -34,6 +34,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<SettingsView>();
         builder.Services.AddSingleton<WishlistViewModel>();
         builder.Services.AddSingleton<WishlistView>();
+        builder.Services.AddSingleton<StockTrackerViewModel>();
+        builder.Services.AddSingleton<StockTrackerView>();
+        builder.Services.AddSingleton<SentimentSearchViewModel>();
+        builder.Services.AddSingleton<SentimentSearchView>();
         builder.Services.AddTransient<ComingSoonView>();
 
         // Pushed sub-views (fresh per navigation)

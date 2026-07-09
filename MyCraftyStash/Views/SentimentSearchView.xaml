@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.SentimentSearchView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
+             x:DataType="vm:SentimentSearchViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <Label Grid.Row="0" Text="Sentiment Search" FontSize="26" FontAttributes="Bold"
+               TextColor="{StaticResource StashText}" Padding="24,18,24,4"/>
+
+        <SearchBar Grid.Row="1" Placeholder="Find a sentiment, e.g. 'thank you', 'happy birthday'"
+                   Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
+                   Margin="20,0,20,6"/>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Results}" SelectionMode="None" Margin="16,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="3"
+                                 HorizontalItemSpacing="12" VerticalItemSpacing="12"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Item">
+                    <Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                            BackgroundColor="{StaticResource StashCard}" Padding="10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" HeightRequest="110">
+                                <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                                       Aspect="AspectFit" HeightRequest="110"/>
+                            </Border>
+                            <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14"
+                                   TextColor="{StaticResource StashText}" MaxLines="2" LineBreakMode="TailTruncation"/>
+                            <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
+                    <Label Text="Search your sentiments" FontSize="20" FontAttributes="Bold"
+                           HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
+                    <Label Text="Type a phrase to find every stamp that has that sentiment."
+                           HorizontalTextAlignment="Center" TextColor="{StaticResource StashTextMuted}"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+                           VerticalOptions="Center" HorizontalOptions="Center"/>
+    </Grid>
+</ContentView>

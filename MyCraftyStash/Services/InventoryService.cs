@@ -94,4 +94,30 @@ public class InventoryService
         using var db = new InventoryDbContext();
         return await db.Items.CountAsync();
     }
+
+    /// <summary>Items whose sentiment text matches — powers Sentiment Search.</summary>
+    public async Task<List<Item>> SearchBySentimentAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return new List<Item>();
+
+        using var db = new InventoryDbContext();
+        var q = query.Trim();
+        return await db.Items.AsNoTracking()
+            .Where(i => i.Sentiments != null && EF.Functions.Like(i.Sentiments, $"%{q}%"))
+            .OrderBy(i => i.Name)
+            .ToListAsync();
+    }
+
+    /// <summary>Items that have a stock count, lowest first — the "running low"
+    /// view for the Stock Tracker.</summary>
+    public async Task<List<Item>> GetStockItemsAsync()
+    {
+        using var db = new InventoryDbContext();
+        return await db.Items.AsNoTracking()
+            .Where(i => i.CurrentStock != null)
+            .OrderBy(i => i.CurrentStock)
+            .ThenBy(i => i.Name)
+            .ToListAsync();
+    }
 }

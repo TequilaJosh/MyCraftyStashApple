@@ -22,6 +22,24 @@ public class InvertedBoolConverter : IValueConverter
 }
 
 /// <summary>
+/// Stock level → dot color: red at/below 0 (out), amber 1–5 (low), green above.
+/// Grey when no stock is tracked.
+/// </summary>
+public class StockLevelColorConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int stock) return Color.FromArgb("#9CA3AF");
+        return stock <= 0 ? Color.FromArgb("#EF4444")
+             : stock <= 5 ? Color.FromArgb("#F59E0B")
+             : Color.FromArgb("#22C55E");
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>
 /// Sidebar selection highlight: given the current route (bound value) and this
 /// row's route (ConverterParameter), returns the "selected" card color when
 /// they match, otherwise transparent.

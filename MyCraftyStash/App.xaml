@@ -15,6 +15,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:ImageStringConverter x:Key="ImageStringConverter" />
             <converters:NavSelectedConverter x:Key="NavSelectedConverter" />
+            <converters:StockLevelColorConverter x:Key="StockLevelColorConverter" />
 
             <!-- ── My Crafty Stash warm palette (matches the Windows app) ── -->
             <Color x:Key="StashPrimary">#A82C32</Color>
