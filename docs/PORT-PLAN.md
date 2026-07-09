@@ -29,13 +29,33 @@ app does, on Mac).
   decide local defaults vs. an editable settings screen).
 
 ## Phase 3 — The other sections
-- **Wish List — done.** `WishlistService` + `WishlistView`/`WishlistEditView`,
-  wired to the `wishlist` route with priority support.
-- Projects (list, detail, linked items, creations) — next.
-- Stock Tracking, Address Book, Calendar, Inspiration, Color Match.
-- Each is: add a sibling service (list/get/add/update/delete over the shared
-  schema), build the MAUI ContentView(s), add a `BuildSection` case + any
-  `Push…` navigator method, register in DI, and swap the route off Coming Soon.
+Sidebar sections now real (off Coming Soon):
+- **Home** — dashboard: live counts (items/projects/wishlist/low-stock) + quick links.
+- **Inventory** — full CRUD.
+- **Sentiment Search** — find items by sentiment text.
+- **Inspiration** — photo gallery (MediaPicker add, view/edit/delete).
+- **Wish List** — full CRUD with priority.
+- **Projects** — list, detail (with linked "items used"), add/edit. *(Linking
+  supplies to a project from the app is still to do — see below.)*
+- **Stock Tracker** — items by stock level, lowest first, colour-coded.
+- **Expense Report / Sales Report** — totals + line items over purchases/sales.
+- **Envelope & Box** — the calculator (pure math port).
+
+Still Coming Soon (deliberately deferred — harder/more coupled):
+- **Color Match** — needs the `ColorMatches` table + DMC/OLO floss
+  cross-reference system, which isn't part of the standard schema; port that
+  data layer first.
+- **Social** — external social-media sharing; desktop/web-specific.
+
+Recipe for each new section: add a sibling service (CRUD over the shared
+schema) → build the MAUI ContentView(s) → add a `BuildSection` case + any
+`Push…` navigator method → register in DI → swap the route off Coming Soon.
+
+## Depth still to add to ported sections
+- Link inventory items to a Project from the app (multi-select picker).
+- Item photos: add/capture via MediaPicker, multi-image gallery.
+- Purchases/sales entry on an item (the reports read them; no entry UI yet).
+- Type/theme filters on the Inventory grid (desktop's dropdown + chips).
 
 ## Phase 4 — Import / sync
 - Import an existing Windows `inventory.db` (same schema — likely just a file
