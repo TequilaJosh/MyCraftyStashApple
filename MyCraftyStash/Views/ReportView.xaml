@@ -8,8 +8,10 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <Label Grid.Row="0" Text="{Binding Title}" FontSize="26" FontAttributes="Bold"
-               TextColor="{StaticResource StashText}" Padding="24,18,24,4"/>
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,4">
+            <Label Text="My Crafty Stash  /  Reports" Style="{StaticResource Breadcrumb}"/>
+            <Label Text="{Binding Title}" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+        </VerticalStackLayout>
 
         <!-- Total banner -->
         <Border Grid.Row="1" StrokeShape="RoundRectangle 12" StrokeThickness="0"

@@ -9,11 +9,15 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,18,24,10">
-            <Label Text="Inspiration" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-            <Button Grid.Column="1" Text="+ Add Photo" Command="{Binding AddImageCommand}"
-                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-        </Grid>
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
+            <Label Text="My Crafty Stash  /  Inspiration" Style="{StaticResource Breadcrumb}"/>
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <Label Text="Inspiration" Style="{StaticResource PageTitle}"/>
+                <Button Grid.Column="1" Text="+ Add Photo" Command="{Binding AddImageCommand}"
+                        Style="{StaticResource PrimaryButton}" VerticalOptions="Center"/>
+            </Grid>
+            <Label Text="Save pictures that spark your next make." Style="{StaticResource PageSubtitle}"/>
+        </VerticalStackLayout>
 
         <Label Grid.Row="1" Text="{Binding Error}" IsVisible="{Binding Error, Converter={StaticResource IsNotNullConverter}}"
                TextColor="{StaticResource ErrorRed}" Margin="24,0,24,6"/>

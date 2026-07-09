@@ -6,8 +6,10 @@
              x:DataType="vm:SettingsViewModel">
 
     <Grid RowDefinitions="Auto,*">
-        <Label Grid.Row="0" Text="Settings" FontSize="26" FontAttributes="Bold"
-               TextColor="{StaticResource StashText}" Padding="24,18,24,10"/>
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
+            <Label Text="My Crafty Stash  /  Settings" Style="{StaticResource Breadcrumb}"/>
+            <Label Text="Settings" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+        </VerticalStackLayout>
 
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Spacing="20" Padding="24,0,24,24" MaximumWidthRequest="620">

@@ -8,9 +8,9 @@
     <ScrollView>
         <VerticalStackLayout Spacing="16" Padding="24" MaximumWidthRequest="560">
 
-            <Label Text="Envelope &amp; Box" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-            <Label Text="Enter your card size and we'll size the paper and score lines."
-                   TextColor="{StaticResource StashTextMuted}"/>
+            <Label Text="My Crafty Stash  /  Envelope &amp; Box" Style="{StaticResource Breadcrumb}"/>
+            <Label Text="Envelope &amp; Box" Style="{StaticResource PageTitle}"/>
+            <Label Text="Enter your card size and we'll size the paper and score lines." Style="{StaticResource PageSubtitle}"/>
 
             <!-- Mode -->
             <HorizontalStackLayout Spacing="20">

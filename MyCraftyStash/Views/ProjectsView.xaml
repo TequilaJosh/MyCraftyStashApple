@@ -9,11 +9,15 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,18,24,10">
-            <Label Text="Projects" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-            <Button Grid.Column="1" Text="+ Add Project" Command="{Binding AddProjectCommand}"
-                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-        </Grid>
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
+            <Label Text="My Crafty Stash  /  Projects" Style="{StaticResource Breadcrumb}"/>
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <Label Text="Project gallery" Style="{StaticResource PageTitle}"/>
+                <Button Grid.Column="1" Text="+ Add Project" Command="{Binding AddProjectCommand}"
+                        Style="{StaticResource PrimaryButton}" VerticalOptions="Center"/>
+            </Grid>
+            <Label Text="Track your makes — each linked to the supplies you used." Style="{StaticResource PageSubtitle}"/>
+        </VerticalStackLayout>
 
         <SearchBar Grid.Row="1" Placeholder="Search your projects"
                    Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"

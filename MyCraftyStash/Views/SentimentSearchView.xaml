@@ -9,8 +9,11 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <Label Grid.Row="0" Text="Sentiment Search" FontSize="26" FontAttributes="Bold"
-               TextColor="{StaticResource StashText}" Padding="24,18,24,4"/>
+        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,4">
+            <Label Text="My Crafty Stash  /  Sentiment Search" Style="{StaticResource Breadcrumb}"/>
+            <Label Text="Sentiment Search" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+            <Label Text="Find every stamp that has a given sentiment." Style="{StaticResource PageSubtitle}"/>
+        </VerticalStackLayout>
 
         <SearchBar Grid.Row="1" Placeholder="Find a sentiment, e.g. 'thank you', 'happy birthday'"
                    Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
