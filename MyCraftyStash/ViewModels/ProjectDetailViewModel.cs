@@ -67,5 +67,20 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
     private void OpenItem(Item item) => _nav.PushDetail(item.Id);
 
     [RelayCommand]
+    private void AddItemLink()
+    {
+        if (Project is not null)
+            _nav.PushItemPicker(Project.Id);
+    }
+
+    [RelayCommand]
+    private async Task RemoveItem(Item item)
+    {
+        if (Project is null) return;
+        await _service.RemoveItemFromProjectAsync(Project.Id, item.Id);
+        await Refresh();
+    }
+
+    [RelayCommand]
     private void Back() => _nav.Back();
 }

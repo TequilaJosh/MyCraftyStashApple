@@ -84,6 +84,14 @@ public class AppNavigator
         Push(view);
     }
 
+    /// <summary>Pick an inventory item to link to the given project.</summary>
+    public void PushItemPicker(int projectId)
+    {
+        var view = _sp.GetRequiredService<ItemPickerView>();
+        (view.BindingContext as ItemPickerViewModel)?.Init(projectId);
+        Push(view);
+    }
+
     public async void Back()
     {
         if (_stack.Count <= 1) return;

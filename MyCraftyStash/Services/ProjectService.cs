@@ -71,4 +71,43 @@ public class ProjectService
         using var db = new InventoryDbContext();
         return await db.Projects.CountAsync();
     }
+
+    // ── Item links ───────────────────────────────────────────────────────────
+
+    public async Task AddItemToProjectAsync(int projectId, int itemId)
+    {
+        using var db = new InventoryDbContext();
+        bool exists = await db.ProjectItems.AnyAsync(pi => pi.ProjectId == projectId && pi.ItemId == itemId);
+        if (exists) return;
+        int nextOrder = await db.ProjectItems.Where(pi => pi.ProjectId == projectId)
+            .Select(pi => (int?)pi.SortOrder).MaxAsync() ?? 0;
+        db.ProjectItems.Add(new ProjectItem { ProjectId = projectId, ItemId = itemId, SortOrder = nextOrder + 1 });
+        await db.SaveChangesAsync();
+    }
+
+    public async Task RemoveItemFromProjectAsync(int projectId, int itemId)
+    {
+        using var db = new InventoryDbContext();
+        var link = await db.ProjectItems.FirstOrDefaultAsync(pi => pi.ProjectId == projectId && pi.ItemId == itemId);
+        if (link is not null)
+        {
+            db.ProjectItems.Remove(link);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>Inventory items not yet linked to this project, optionally filtered.</summary>
+    public async Task<List<Item>> GetLinkableItemsAsync(int projectId, string? search = null)
+    {
+        using var db = new InventoryDbContext();
+        var linked = db.ProjectItems.Where(pi => pi.ProjectId == projectId).Select(pi => pi.ItemId);
+        IQueryable<Item> query = db.Items.AsNoTracking().Where(i => !linked.Contains(i.Id));
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(i => EF.Functions.Like(i.Name, $"%{s}%") ||
+                                     (i.Type != null && EF.Functions.Like(i.Type, $"%{s}%")));
+        }
+        return await query.OrderBy(i => i.Name).ToListAsync();
+    }
 }

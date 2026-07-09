@@ -45,21 +45,37 @@
                 </VerticalStackLayout>
 
                 <!-- Items used -->
-                <VerticalStackLayout Spacing="8" IsVisible="{Binding HasItemsUsed}">
-                    <Label Text="Items used" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource StashText}"/>
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Items used" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="+ Add item" Command="{Binding AddItemLinkCommand}"
+                                Padding="12,4" FontSize="13"
+                                BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    </Grid>
+                    <Label Text="No supplies linked yet — tap Add item to link what you used."
+                           IsVisible="{Binding HasItemsUsed, Converter={StaticResource InvertedBoolConverter}}"
+                           TextColor="{StaticResource StashTextMuted}"/>
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding ItemsUsed}" Spacing="6">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:Item">
                                 <Border StrokeShape="RoundRectangle 8" StrokeThickness="0"
                                         BackgroundColor="{StaticResource StashCard}" Padding="12,8">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
-                                                              CommandParameter="{Binding .}"/>
-                                    </Border.GestureRecognizers>
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <Label Text="{Binding Name}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
-                                        <Label Grid.Column="1" Text="{Binding Type}" FontSize="12"
-                                               TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                                        <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                                            <VerticalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </VerticalStackLayout.GestureRecognizers>
+                                            <Label Text="{Binding Name}" TextColor="{StaticResource StashText}"/>
+                                            <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="✕" FontSize="16" VerticalOptions="Center"
+                                               TextColor="{StaticResource StashTextMuted}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.RemoveItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

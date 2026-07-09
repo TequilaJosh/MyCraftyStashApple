@@ -63,6 +63,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ProjectDetailView>();
         builder.Services.AddTransient<ProjectEditViewModel>();
         builder.Services.AddTransient<ProjectEditView>();
+        builder.Services.AddTransient<ItemPickerViewModel>();
+        builder.Services.AddTransient<ItemPickerView>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();
