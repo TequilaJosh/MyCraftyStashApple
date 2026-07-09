@@ -62,6 +62,13 @@ public class AppNavigator
         Push(view);
     }
 
+    public void PushInspirationDetail(int id)
+    {
+        var view = _sp.GetRequiredService<InspirationDetailView>();
+        (view.BindingContext as InspirationDetailViewModel)?.Init(id);
+        Push(view);
+    }
+
     public void PushProjectDetail(int id)
     {
         var view = _sp.GetRequiredService<ProjectDetailView>();
@@ -99,6 +106,7 @@ public class AppNavigator
         "wishlist" => _sp.GetRequiredService<WishlistView>(),
         "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),
         "sentiment" => _sp.GetRequiredService<SentimentSearchView>(),
+        "inspiration" => _sp.GetRequiredService<InspirationView>(),
         "projects" => _sp.GetRequiredService<ProjectsView>(),
         "envelope" => _sp.GetRequiredService<EnvelopeExpertView>(),
         "expense" => Report(ReportKind.Expense),

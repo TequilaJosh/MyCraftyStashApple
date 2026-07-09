@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.InspirationDetailView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:InspirationDetailViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="‹ Back" Command="{Binding BackCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            <Label Grid.Column="1" Text="Inspiration" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+            <Button Grid.Column="2" Text="Remove" Command="{Binding DeleteCommand}"
+                    BackgroundColor="{StaticResource ErrorRed}" TextColor="White"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="14" Padding="20" MaximumWidthRequest="720">
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White">
+                    <Image Source="{Binding Image.ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                           Aspect="AspectFit" MaximumHeightRequest="460"/>
+                </Border>
+
+                <Label Text="Title" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Title}"/>
+
+                <Label Text="Notes" TextColor="{StaticResource StashText}"/>
+                <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="90"/>
+
+                <Button Text="Save" Command="{Binding SaveCommand}" HorizontalOptions="Start"
+                        BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

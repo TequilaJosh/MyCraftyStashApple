@@ -40,6 +40,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<StockTrackerView>();
         builder.Services.AddSingleton<SentimentSearchViewModel>();
         builder.Services.AddSingleton<SentimentSearchView>();
+        builder.Services.AddSingleton<InspirationViewModel>();
+        builder.Services.AddSingleton<InspirationView>();
         builder.Services.AddSingleton<ProjectsViewModel>();
         builder.Services.AddSingleton<ProjectsView>();
         builder.Services.AddSingleton<EnvelopeExpertViewModel>();
@@ -55,6 +57,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ItemEditView>();
         builder.Services.AddTransient<WishlistEditViewModel>();
         builder.Services.AddTransient<WishlistEditView>();
+        builder.Services.AddTransient<InspirationDetailViewModel>();
+        builder.Services.AddTransient<InspirationDetailView>();
         builder.Services.AddTransient<ProjectDetailViewModel>();
         builder.Services.AddTransient<ProjectDetailView>();
         builder.Services.AddTransient<ProjectEditViewModel>();
