@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MyCraftyStash.Views.CardWizardPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:svc="clr-namespace:MyCraftyStash.Services"
+             x:Name="Page"
+             x:DataType="vm:CardWizardViewModel"
+             BackgroundColor="{StaticResource StashBackground}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <views:CardWizardStyles xmlns:views="clr-namespace:MyCraftyStash.Views" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ═══ Header ═══ -->
+        <Border Grid.Row="0" BackgroundColor="{StaticResource StashCard}" StrokeThickness="0" Padding="20,14">
+            <Label Text="Start Project" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+        </Border>
+
+        <!-- ═══ 3-column body ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="322,*,345">
+
+            <!-- LEFT: project image -->
+            <Border Grid.Column="0" BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                    StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="18" Margin="8">
+                <Grid RowDefinitions="*,Auto">
+                    <Image Grid.Row="0" Source="{Binding ProjectImage, Converter={StaticResource ImageStringConverter}}"
+                           Aspect="AspectFit" IsVisible="{Binding HasProjectImage}"/>
+                    <Label Grid.Row="0" Text="Image of item" FontSize="14" TextColor="{StaticResource StashTextMuted}"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           IsVisible="{Binding HasProjectImage, Converter={StaticResource InvertedBoolConverter}}"/>
+                    <Label Grid.Row="1" Text="{Binding ProjectName}" FontSize="12" TextColor="{StaticResource StashTextMuted}"
+                           HorizontalOptions="Center" Margin="0,8,0,0"/>
+                </Grid>
+            </Border>
+
+            <!-- MIDDLE: hub or active section -->
+            <ScrollView Grid.Column="1">
+                <VerticalStackLayout Padding="20,16">
+
+                    <!-- ═══ OUTSIDE HUB ═══ -->
+                    <VerticalStackLayout IsVisible="{Binding IsHubActive}">
+                        <Button Style="{StaticResource BackPill}" Text="← Back to Project Page"
+                                Command="{Binding CancelBuildCommand}"
+                                IsVisible="{Binding IsInsideMode, Converter={StaticResource InvertedBoolConverter}}"/>
+                        <Button Style="{StaticResource BackPill}" Text="← Back to Main Hub"
+                                Command="{Binding ToggleInsideModeCommand}"
+                                IsVisible="{Binding IsInsideMode}"/>
+
+                        <!-- Inside-of-Card banner -->
+                        <Border IsVisible="{Binding IsInsideMode}" BackgroundColor="{StaticResource StashPrimary}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="16,12" Margin="6,0,6,12">
+                            <Label Text="Inside of Card" FontSize="22" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        </Border>
+
+                        <!-- Outside-mode hub: 4×2 -->
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                              IsVisible="{Binding IsInsideMode, Converter={StaticResource InvertedBoolConverter}}">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource HubButton}" Text="Cardbase" Command="{Binding NavToCardBaseCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding CardBaseSaved}" Value="True">
+                                        <Setter Property="Text" Value="Cardbase - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource HubButton}" Text="Sentiment" Command="{Binding NavToSentimentCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding SentimentSaved}" Value="True">
+                                        <Setter Property="Text" Value="Sentiment - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource HubButton}" Text="Background Mat" Command="{Binding NavToBackgroundMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding BackgroundMatSaved}" Value="True">
+                                        <Setter Property="Text" Value="Background Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource HubButton}" Text="Embellishments" Command="{Binding NavToEmbellishmentsCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EmbellishmentsSaved}" Value="True">
+                                        <Setter Property="Text" Value="Embellishments - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource HubButton}" Text="Additional Mat" Command="{Binding NavToAdditionalMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding AdditionalMatSaved}" Value="True">
+                                        <Setter Property="Text" Value="Additional Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource HubButton}" Text="Build Inside of Card" Command="{Binding ToggleInsideModeCommand}"/>
+                            <Button Grid.Row="3" Grid.Column="0" Style="{StaticResource HubButton}" Text="Focal Mat" Command="{Binding NavToFocalMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding FocalMatSaved}" Value="True">
+                                        <Setter Property="Text" Value="Focal Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <!-- Envelopes picker fills the last hub slot -->
+                            <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource HubButton}"
+                                    Text="{Binding EnvelopesPicker.DisplayLabel, TargetNullValue='Envelopes', FallbackValue='Envelopes'}"
+                                    Command="{Binding OpenPickerCommand}" CommandParameter="{Binding EnvelopesPicker}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EnvelopeSaved}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EnvelopesPicker.DisplayLabel}" Value="">
+                                        <Setter Property="Text" Value="Envelopes"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+
+                        <!-- Inside-mode hub: 2 cols × 5 rows -->
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                              IsVisible="{Binding IsInsideMode}">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource HubButton}" Text="Cardstock" Command="{Binding NavToInsideCardstockCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideCardstockSaved}" Value="True">
+                                        <Setter Property="Text" Value="Cardstock - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource HubButton}" Text="Sentiment" Command="{Binding NavToSentimentCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideSentimentDone}" Value="True">
+                                        <Setter Property="Text" Value="Sentiment - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource HubButton}" Text="Background Mat" Command="{Binding NavToBackgroundMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideBackgroundMatDone}" Value="True">
+                                        <Setter Property="Text" Value="Background Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource HubButton}" Text="Embellishments" Command="{Binding NavToEmbellishmentsCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideEmbellishmentsDone}" Value="True">
+                                        <Setter Property="Text" Value="Embellishments - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource HubButton}" Text="Additional Mat" Command="{Binding NavToAdditionalMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideAdditionalMatDone}" Value="True">
+                                        <Setter Property="Text" Value="Additional Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource HubButton}" Text="Details" Command="{Binding NavToInsideDetailsCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideDetailsSaved}" Value="True">
+                                        <Setter Property="Text" Value="Details - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="3" Grid.Column="0" Style="{StaticResource HubButton}" Text="Focal Mat" Command="{Binding NavToFocalMatCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding InsideFocalMatDone}" Value="True">
+                                        <Setter Property="Text" Value="Focal Mat - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                        <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="4" Grid.ColumnSpan="2" Style="{StaticResource HubPrimaryButton}"
+                                    Text="Done with Inside" Command="{Binding ToggleInsideModeCommand}"/>
+                        </Grid>
+
+                        <!-- Create Card + Notes (both modes) -->
+                        <VerticalStackLayout Margin="6,12,6,4">
+                            <Button Style="{StaticResource HubPrimaryButton}" Text="Create Card" Command="{Binding ConfirmBuildCommand}"/>
+                            <Label Text="Notes" Style="{StaticResource MutedLabel}" Margin="4,10,0,2"/>
+                            <Editor Text="{Binding WizardNotes}" AutoSize="TextChanges" MinimumHeightRequest="90"
+                                    BackgroundColor="{StaticResource StashSurface}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- ═══ CARDBASE SUB-HUB ═══ -->
+                    <VerticalStackLayout>
+                        <VerticalStackLayout.IsVisible>
+                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                <Binding Path="IsCardBaseSectionActive"/>
+                                <Binding Path="IsCardBaseHubStep"/>
+                            </MultiBinding>
+                        </VerticalStackLayout.IsVisible>
+                        <Button Style="{StaticResource BackPill}" Text="← Back to hub" Command="{Binding BackToHubCommand}"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource HubButton}" Text="Cardfold" Command="{Binding NavCardBaseToCardfoldCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding CardFoldSaved}" Value="True">
+                                        <Setter Property="Text" Value="Cardfold - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource HubButton}" Text="Details" Command="{Binding NavCardBaseToDetailsCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding CardBaseDetailsSaved}" Value="True">
+                                        <Setter Property="Text" Value="Details - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource HubButton}" Text="Cardstock" Command="{Binding NavCardBaseToCardstockCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding CardStockSaved}" Value="True">
+                                        <Setter Property="Text" Value="Cardstock - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource HubButton}" Text="Adhesives" Command="{Binding NavCardBaseToAdhesivesCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding CardBaseAdhesivesSaved}" Value="True">
+                                        <Setter Property="Text" Value="Adhesives - Done!"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+                        <Button Style="{StaticResource HubPrimaryButton}" Text="Save Cardbase" Command="{Binding SaveCardBaseAndBackToHubCommand}" Margin="6,12,6,4"/>
+                    </VerticalStackLayout>
+
+                    <!-- ═══ CARDFOLD ═══ -->
+                    <VerticalStackLayout>
+                        <VerticalStackLayout.IsVisible>
+                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                <Binding Path="IsCardBaseSectionActive"/>
+                                <Binding Path="IsCardBaseCardfoldStep"/>
+                            </MultiBinding>
+                        </VerticalStackLayout.IsVisible>
+                        <Button Style="{StaticResource BackPill}" Text="← Back to Cardbase" Command="{Binding BackToCardBaseHubCommand}"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource HubButton}" Text="A2 Top Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="A2 Top Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="A2 Top Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource HubButton}" Text="A7 Top Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="A7 Top Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="A7 Top Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource HubButton}" Text="A2 Side Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="A2 Side Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="A2 Side Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource HubButton}" Text="A7 Side Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="A7 Side Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="A7 Side Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource HubButton}" Text="Mini Slim Top Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="Mini Slim Top Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="Mini Slim Top Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource HubButton}" Text="Mini Slim Side Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="Mini Slim Side Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="Mini Slim Side Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                            <Button Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource HubButton}" Text="Fun Fold" Command="{Binding SelectCardFoldCommand}" CommandParameter="Fun Fold">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding SelectedCardBase}" Value="Fun Fold"><Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/><Setter Property="TextColor" Value="White"/></DataTrigger></Button.Triggers>
+                            </Button>
+                        </Grid>
+                        <Button Style="{StaticResource HubPrimaryButton}" Text="Save Cardfold" Command="{Binding SaveCardFoldCommand}" Margin="6,12,6,4"/>
+                    </VerticalStackLayout>
+
+                    <!-- ═══ CARDSTOCK (base) ═══ -->
+                    <VerticalStackLayout>
+                        <VerticalStackLayout.IsVisible>
+                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                <Binding Path="IsCardBaseSectionActive"/>
+                                <Binding Path="IsCardBaseCardstockStep"/>
+                            </MultiBinding>
+                        </VerticalStackLayout.IsVisible>
+                        <Button Style="{StaticResource BackPill}" Text="← Back to Cardbase" Command="{Binding BackToCardBaseHubCommand}"/>
+                        <Button Style="{StaticResource HubButton}" Text="{Binding BaseRegularCardstockPicker.DisplayLabel, TargetNullValue='Cardstock'}"
+                                Command="{Binding OpenPickerCommand}" CommandParameter="{Binding BaseRegularCardstockPicker}">
+                            <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding BaseRegularCardstockPicker.DisplayLabel}" Value=""><Setter Property="Text" Value="Cardstock"/></DataTrigger></Button.Triggers>
+                        </Button>
+                        <Button Style="{StaticResource HubButton}" Text="{Binding BaseFoilCardstockPicker.DisplayLabel, TargetNullValue='Foil Cardstock'}"
+                                Command="{Binding OpenPickerCommand}" CommandParameter="{Binding BaseFoilCardstockPicker}">
+                            <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding BaseFoilCardstockPicker.DisplayLabel}" Value=""><Setter Property="Text" Value="Foil Cardstock"/></DataTrigger></Button.Triggers>
+                        </Button>
+                        <Button Style="{StaticResource HubButton}" Text="{Binding BaseGlitterCardstockPicker.DisplayLabel, TargetNullValue='Glitter Cardstock'}"
+                                Command="{Binding OpenPickerCommand}" CommandParameter="{Binding BaseGlitterCardstockPicker}">
+                            <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding BaseGlitterCardstockPicker.DisplayLabel}" Value=""><Setter Property="Text" Value="Glitter Cardstock"/></DataTrigger></Button.Triggers>
+                        </Button>
+                        <!-- Self-blend -->
+                        <Border BackgroundColor="{StaticResource StashCard}" Stroke="{StaticResource StashBorder}" StrokeThickness="2"
+                                StrokeShape="RoundRectangle 14" Padding="12" Margin="6,12,6,0">
+                            <VerticalStackLayout Spacing="6">
+                                <HorizontalStackLayout Spacing="6">
+                                    <CheckBox IsChecked="{Binding BaseIsSelfBlended}"/>
+                                    <Label Text="Self-blended cardstock" FontSize="12" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <VerticalStackLayout Spacing="6" IsVisible="{Binding BaseIsSelfBlended}">
+                                    <Label Text="Description (optional):" Style="{StaticResource MutedLabel}"/>
+                                    <Entry Text="{Binding BaseSelfBlendDescription}"/>
+                                    <Label Text="Inks used (optional):" Style="{StaticResource MutedLabel}"/>
+                                    <FlexLayout BindableLayout.ItemsSource="{Binding BaseBlendInks.Chips}" Wrap="Wrap" JustifyContent="Start">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:InkColorChip">
+                                                <Border Style="{StaticResource ChipBorder}" Margin="2">
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding ToggleCommand}"/>
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="{Binding Color}" FontSize="11" TextColor="{StaticResource StashText}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="TextColor" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Border>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Button Style="{StaticResource HubPrimaryButton}" Text="Confirm Cardstock" Command="{Binding SaveCardStockCommand}" Margin="6,12,6,4"/>
+                    </VerticalStackLayout>
+
+                    <!-- ═══ INSIDE CARDSTOCK ═══ -->
+                    <VerticalStackLayout IsVisible="{Binding IsInsideCardstockSectionActive}">
+                        <Button Style="{StaticResource BackPill}" Text="← Back to Inside" Command="{Binding BackToHubCommand}"/>
+                        <Button Style="{StaticResource HubButton}" Text="{Binding InsideLinerCardstockPicker.DisplayLabel, TargetNullValue='Cardstock for inside'}"
+                                Command="{Binding OpenPickerCommand}" CommandParameter="{Binding InsideLinerCardstockPicker}">
+                            <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding InsideLinerCardstockPicker.DisplayLabel}" Value=""><Setter Property="Text" Value="Cardstock for inside"/></DataTrigger></Button.Triggers>
+                        </Button>
+                        <Button Style="{StaticResource HubPrimaryButton}" Text="Save Inside Cardstock" Command="{Binding SaveInsideCardstockAndBackToHubCommand}" Margin="6,12,6,4"/>
+                    </VerticalStackLayout>
+
+                    <!-- Remaining sections are provided by the second part of this page -->
+                    <ContentView x:Name="SectionsPart2"/>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- RIGHT: running summary -->
+            <Border Grid.Column="2" BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                    StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="18" Margin="8">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Grid.Row="0" Text="Summary" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    <ScrollView Grid.Row="1" Margin="0,8,0,0">
+                        <VerticalStackLayout>
+                            <Label Text="No items selected yet." FontSize="12" FontAttributes="Italic"
+                                   TextColor="{StaticResource StashTextMuted}"
+                                   IsVisible="{Binding SummaryLines.Count, Converter={StaticResource IsZeroConverter}}"/>
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding SummaryLines}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SummaryRow">
+                                        <Grid ColumnDefinitions="*,Auto" Margin="0,1">
+                                            <Label Text="{Binding Text}" FontSize="12" TextColor="{StaticResource StashText}" LineBreakMode="WordWrap"/>
+                                            <Button Grid.Column="1" Text="✕" FontSize="10" Padding="4,0" WidthRequest="24" HeightRequest="20"
+                                                    BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"
+                                                    IsVisible="{Binding IsRemovable}"
+                                                    Command="{Binding BindingContext.RemoveSummaryRowCommand, Source={x:Reference Page}, x:DataType=ContentPage}"
+                                                    CommandParameter="{Binding .}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Grid>
+            </Border>
+
+            <!-- ═══ Shared picker overlay ═══ -->
+            <Grid Grid.ColumnSpan="3" BackgroundColor="#88000000" IsVisible="{Binding IsPickerOpen}">
+                <Border BackgroundColor="{StaticResource StashCard}" Stroke="{StaticResource StashPrimary}" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 14" Padding="14" MaximumWidthRequest="560" MaximumHeightRequest="620"
+                        HorizontalOptions="Center" VerticalOptions="Center">
+                    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8" WidthRequest="520">
+                        <Label Grid.Row="0" Text="{Binding ActivePicker.PlaceholderText}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                        <Entry Grid.Row="1" Text="{Binding ActivePicker.SearchText}" Placeholder="Search…"/>
+                        <CollectionView Grid.Row="2" ItemsSource="{Binding ActivePicker.FilteredItems}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svc:WizardItemOption">
+                                    <Grid ColumnDefinitions="52,*" Padding="4,4" ColumnSpacing="10">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.PickOverlayItemCommand, Source={x:Reference Page}, x:DataType=ContentPage}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Grid.GestureRecognizers>
+                                        <Border WidthRequest="44" HeightRequest="44" BackgroundColor="{StaticResource StashSidebar}"
+                                                StrokeThickness="1" Stroke="{StaticResource StashBorder}" StrokeShape="RoundRectangle 4">
+                                            <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFill"/>
+                                        </Border>
+                                        <Label Grid.Column="1" Text="{Binding Name}" FontSize="13" TextColor="{StaticResource StashText}"
+                                               VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Button Grid.Column="0" Text="Clear" Style="{StaticResource BackPill}" Margin="0" Command="{Binding ClearOverlayPickerCommand}"/>
+                            <Button Grid.Column="2" Text="Done" Style="{StaticResource HubPrimaryButton}" Margin="0" Command="{Binding ClosePickerCommand}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -16,6 +16,8 @@
             <converters:ImageStringConverter x:Key="ImageStringConverter" />
             <converters:NavSelectedConverter x:Key="NavSelectedConverter" />
             <converters:StockLevelColorConverter x:Key="StockLevelColorConverter" />
+            <converters:AllTrueConverter x:Key="AllTrueConverter" />
+            <converters:IsZeroConverter x:Key="IsZeroConverter" />
 
             <!-- ── My Crafty Stash warm palette (matches the Windows app) ── -->
             <Color x:Key="StashPrimary">#A82C32</Color>

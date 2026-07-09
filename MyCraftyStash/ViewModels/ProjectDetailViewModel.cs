@@ -60,10 +60,25 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
     }
 
     [RelayCommand]
-    private void BuildCard()
+    private async Task BuildCard()
     {
-        if (Project is not null)
-            _nav.PushCardBuilder(Project.Id, Project.Name);
+        if (Project is null) return;
+
+        // Open the full card build wizard as a modal popout (desktop parity).
+        var existing = await _cardService.GetForProjectAsync(Project.Id);
+        var vm = new CardWizardViewModel();
+        await vm.InitializeAsync(Project.Id, Project.Name, Project.ImageUrl, existing?.StateSnapshot);
+
+        int projectId = Project.Id;
+        var page = new Views.CardWizardPage(vm, async wiz =>
+        {
+            if (!wiz.WasConfirmed || wiz.BuildSteps.Count == 0) { await Refresh(); return; }
+            await _cardService.SaveWizardBuildAsync(projectId, wiz.CardBaseType, wiz.BuildSteps, wiz.CaptureSnapshotJson());
+            await Refresh();
+        });
+        var nav = Application.Current?.Windows[0].Page?.Navigation;
+        if (nav is not null)
+            await nav.PushModalAsync(page);
     }
 
     [RelayCommand]

@@ -96,3 +96,26 @@ public class ImageStringConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>Multi-binding AND: true only when every input is true.</summary>
+public class AllTrueConverter : IMultiValueConverter
+{
+    public object Convert(object[]? values, Type targetType, object? parameter, CultureInfo culture) =>
+        values is not null && values.All(v => v is true);
+
+    public object[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>True when an int is zero (pass ConverterParameter "invert" for non-zero).</summary>
+public class IsZeroConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isZero = value is int i && i == 0;
+        return string.Equals(parameter as string, "invert", StringComparison.OrdinalIgnoreCase) ? !isZero : isZero;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="MyCraftyStash.Views.CardWizardStyles">
+            <!-- Hub pill button (desktop HubButton: surface fill, 1px border, r22) -->
+            <Style x:Key="HubButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+                <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+                <Setter Property="BorderColor" Value="{StaticResource StashBorder}"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="CornerRadius" Value="22"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="MinimumHeightRequest" Value="56"/>
+                <Setter Property="Margin" Value="6"/>
+            </Style>
+            <Style x:Key="HubPrimaryButton" TargetType="Button" BasedOn="{StaticResource HubButton}">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                <Setter Property="BorderColor" Value="{StaticResource StashPrimary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="MinimumHeightRequest" Value="48"/>
+            </Style>
+            <Style x:Key="BackPill" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+                <Setter Property="BorderColor" Value="{StaticResource StashBorder}"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="CornerRadius" Value="99"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="Padding" Value="12,5"/>
+                <Setter Property="HorizontalOptions" Value="Start"/>
+                <Setter Property="Margin" Value="6,0,6,10"/>
+            </Style>
+            <Style x:Key="FollowupCard" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashCard}"/>
+                <Setter Property="Stroke" Value="{StaticResource StashPrimary}"/>
+                <Setter Property="StrokeThickness" Value="2"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="6,6,6,0"/>
+            </Style>
+            <Style x:Key="ChipBorder" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashSidebar}"/>
+                <Setter Property="StrokeThickness" Value="0"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 6"/>
+                <Setter Property="Padding" Value="10,7"/>
+                <Setter Property="Margin" Value="0,2"/>
+            </Style>
+            <Style x:Key="MutedLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+            </Style>
+</ResourceDictionary>

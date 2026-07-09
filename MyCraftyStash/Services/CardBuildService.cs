@@ -67,6 +67,24 @@ public class CardBuildService
         await db.SaveChangesAsync();
     }
 
+    /// <summary>Saves a wizard-produced build (matches the desktop's
+    /// SaveProjectCardBuildAsync: delete + recreate, steps in list order).</summary>
+    public async Task SaveWizardBuildAsync(int projectId, string cardBaseType,
+        IList<WizardBuildStep> steps, string? stateSnapshot)
+    {
+        var rows = steps.Select(s => new ProjectCardBuildStep
+        {
+            Section = s.Section,
+            StepType = s.StepType,
+            MatLayer = s.MatLayer,
+            ItemId = s.ItemId,
+            StackletDieId = s.StackletDieId,
+            CuttingMethod = s.CuttingMethod,
+            Label = s.Label,
+        }).ToList();
+        await SaveAsync(projectId, cardBaseType, stateSnapshot, rows);
+    }
+
     public async Task DeleteForProjectAsync(int projectId)
     {
         using var db = new InventoryDbContext();
