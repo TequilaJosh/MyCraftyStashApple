@@ -54,6 +54,14 @@ public class AppNavigator
         Push(view);
     }
 
+    /// <summary>Wish-list add (id 0) or edit form.</summary>
+    public void PushWishlistEdit(int id)
+    {
+        var view = _sp.GetRequiredService<WishlistEditView>();
+        (view.BindingContext as WishlistEditViewModel)?.Init(id);
+        Push(view);
+    }
+
     public async void Back()
     {
         if (_stack.Count <= 1) return;
@@ -72,6 +80,7 @@ public class AppNavigator
     private View BuildSection(string route) => route switch
     {
         "inventory" => _sp.GetRequiredService<InventoryView>(),
+        "wishlist" => _sp.GetRequiredService<WishlistView>(),
         "settings" => _sp.GetRequiredService<SettingsView>(),
         _ => ComingSoon(route),
     };

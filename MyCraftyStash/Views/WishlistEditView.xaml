@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.WishlistEditView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:WishlistEditViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="‹ Back" Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            <Label Grid.Column="1" Text="{Binding PageTitle}" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+            <Button Grid.Column="2" Text="Remove" Command="{Binding DeleteCommand}"
+                    IsVisible="{Binding IsEditing}"
+                    BackgroundColor="{StaticResource ErrorRed}" TextColor="White"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12" Padding="20,0,20,20" MaximumWidthRequest="620">
+
+                <Label Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                       TextColor="{StaticResource ErrorRed}"/>
+
+                <Label Text="Name *" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Name}" Placeholder="What do you want?"/>
+
+                <Label Text="Type" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Type}" Placeholder="e.g. Die, Stamp, Stencil"/>
+
+                <Label Text="Priority" TextColor="{StaticResource StashText}"/>
+                <Picker ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"/>
+
+                <Label Text="Theme" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Theme}"/>
+
+                <Label Text="Item number" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding ItemNumber}"/>
+
+                <Label Text="Price" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding PriceText}" Keyboard="Numeric" Placeholder="0.00"/>
+
+                <Label Text="Where to buy" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding PurchasedFrom}"/>
+
+                <Label Text="Link (URL)" TextColor="{StaticResource StashText}"/>
+                <Entry Text="{Binding Url}" Keyboard="Url"/>
+
+                <Label Text="Notes" TextColor="{StaticResource StashText}"/>
+                <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="90"/>
+
+                <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
+                    <Button Text="Save" Command="{Binding SaveCommand}"
+                            BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    <Button Text="Cancel" Command="{Binding CancelCommand}"
+                            BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.WishlistView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
+             x:DataType="vm:WishlistViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,18,24,10">
+            <Label Text="Wish List" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+            <Button Grid.Column="1" Text="+ Add" Command="{Binding AddItemCommand}"
+                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+        </Grid>
+
+        <SearchBar Grid.Row="1" Placeholder="Search your wish list"
+                   Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
+                   Margin="20,0,20,6"/>
+
+        <RefreshView Grid.Row="2" Command="{Binding DoRefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" Margin="16,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3"
+                                     HorizontalItemSpacing="12" VerticalItemSpacing="12"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:WishlistItem">
+                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                                BackgroundColor="{StaticResource StashCard}" Padding="10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6">
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" HeightRequest="110">
+                                    <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                                           Aspect="AspectFit" HeightRequest="110"/>
+                                </Border>
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14"
+                                       TextColor="{StaticResource StashText}" MaxLines="2" LineBreakMode="TailTruncation"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                    <Label Grid.Column="1" Text="{Binding PriorityLabel}" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{StaticResource StashPrimary}"/>
+                                </Grid>
+                                <Label Text="{Binding Price, StringFormat='{0:C}'}" FontSize="12"
+                                       IsVisible="{Binding Price, Converter={StaticResource IsNotNullConverter}}"
+                                       TextColor="{StaticResource StashText}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
+                        <Label Text="Your wish list is empty" FontSize="20" FontAttributes="Bold"
+                               HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
+                        <Label Text="Tap Add to note something you'd love to get."
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource StashTextMuted}"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
+                           VerticalOptions="Center" HorizontalOptions="Center"/>
+    </Grid>
+</ContentView>

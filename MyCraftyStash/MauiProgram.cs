@@ -20,6 +20,7 @@ public static class MauiProgram
 
         // Services
         builder.Services.AddSingleton<InventoryService>();
+        builder.Services.AddSingleton<WishlistService>();
         builder.Services.AddSingleton<AppNavigator>();
 
         // Shell / sidebar
@@ -31,6 +32,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<InventoryView>();
         builder.Services.AddSingleton<SettingsViewModel>();
         builder.Services.AddSingleton<SettingsView>();
+        builder.Services.AddSingleton<WishlistViewModel>();
+        builder.Services.AddSingleton<WishlistView>();
         builder.Services.AddTransient<ComingSoonView>();
 
         // Pushed sub-views (fresh per navigation)
@@ -38,6 +41,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ItemDetailView>();
         builder.Services.AddTransient<ItemEditViewModel>();
         builder.Services.AddTransient<ItemEditView>();
+        builder.Services.AddTransient<WishlistEditViewModel>();
+        builder.Services.AddTransient<WishlistEditView>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();
