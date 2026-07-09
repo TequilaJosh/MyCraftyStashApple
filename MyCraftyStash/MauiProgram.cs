@@ -32,6 +32,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ItemDetailPage>();
         builder.Services.AddTransient<ItemEditPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<ComingSoonPage>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();

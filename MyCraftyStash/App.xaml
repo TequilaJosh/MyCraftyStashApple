@@ -10,11 +10,54 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Converters -->
             <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:ImageStringConverter x:Key="ImageStringConverter" />
+            <converters:NavSelectedConverter x:Key="NavSelectedConverter" />
 
+            <!-- ── My Crafty Stash warm palette (matches the Windows app) ── -->
+            <Color x:Key="StashPrimary">#A82C32</Color>
+            <Color x:Key="StashBackground">#F2EEE6</Color>
+            <Color x:Key="StashCard">#F6F2EB</Color>
+            <Color x:Key="StashBorder">#E1DCD0</Color>
+            <Color x:Key="StashText">#1E1B17</Color>
+            <Color x:Key="StashTextMuted">#7A7264</Color>
+            <Color x:Key="StashSidebar">#EBE6D9</Color>
+            <Color x:Key="StashSidebarHover">#E0DAC9</Color>
+            <Color x:Key="StashSidebarSelected">#F6F2EB</Color>
             <Color x:Key="ErrorRed">#D9534F</Color>
+
+            <!-- Content pages use the warm background + dark text -->
+            <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashBackground}" />
+            </Style>
+
+            <!-- Sidebar nav row: rounded, fills when selected -->
+            <Style x:Key="NavRow" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+                <Setter Property="Padding" Value="12,10" />
+                <Setter Property="Margin" Value="0,1" />
+            </Style>
+            <Style x:Key="NavIcon" TargetType="Label">
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="WidthRequest" Value="24" />
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+            <Style x:Key="NavText" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+            <Style x:Key="NavSectionHeader" TargetType="Label">
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource StashTextMuted}" />
+                <Setter Property="Margin" Value="12,18,0,6" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

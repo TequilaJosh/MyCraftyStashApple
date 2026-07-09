@@ -22,6 +22,25 @@ public class InvertedBoolConverter : IValueConverter
 }
 
 /// <summary>
+/// Sidebar selection highlight: given the current route (bound value) and this
+/// row's route (ConverterParameter), returns the "selected" card color when
+/// they match, otherwise transparent.
+/// </summary>
+public class NavSelectedConverter : IValueConverter
+{
+    private static readonly Color Selected = Color.FromArgb("#F6F2EB");
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is string current && parameter is string route &&
+        string.Equals(current, route, StringComparison.OrdinalIgnoreCase)
+            ? Selected
+            : Colors.Transparent;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>
 /// Turns MCS's stored image string into a MAUI ImageSource. The desktop app
 /// stores photos as base64 (often a "data:image/...;base64,XXXX" data URI)
 /// inline in image_url; older/imported rows may hold an http(s) URL or a file

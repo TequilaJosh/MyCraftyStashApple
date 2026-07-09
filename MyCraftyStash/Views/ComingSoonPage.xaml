@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MyCraftyStash.Views.ComingSoonPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Name="Page">
+    <VerticalStackLayout Spacing="12" VerticalOptions="Center" HorizontalOptions="Center" Padding="40">
+        <Label x:Name="IconLabel" Text="✦" FontSize="48" HorizontalOptions="Center"
+               TextColor="{StaticResource StashPrimary}"/>
+        <Label x:Name="TitleLabel" Text="Coming soon" FontSize="26" FontAttributes="Bold"
+               HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
+        <Label Text="This section isn't ported to the Mac &amp; iPad app yet — it's on the way."
+               HorizontalTextAlignment="Center" MaximumWidthRequest="360"
+               TextColor="{StaticResource StashTextMuted}"/>
+    </VerticalStackLayout>
+</ContentPage>
