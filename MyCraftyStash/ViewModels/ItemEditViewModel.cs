@@ -5,15 +5,17 @@ using MyCraftyStash.Services;
 
 namespace MyCraftyStash.ViewModels;
 
-/// <summary>Add/edit form for one item. No Id passed = add; Id passed = edit.</summary>
-public partial class ItemEditViewModel : ObservableObject, IQueryAttributable
+/// <summary>Add/edit form for one item. Init() with no id = add; with id = edit.</summary>
+public partial class ItemEditViewModel : ObservableObject
 {
     private readonly InventoryService _service;
+    private readonly AppNavigator _nav;
     private int _id;
 
-    public ItemEditViewModel(InventoryService service)
+    public ItemEditViewModel(InventoryService service, AppNavigator nav)
     {
         _service = service;
+        _nav = nav;
         Name = "";
         Type = "";
     }
@@ -31,45 +33,32 @@ public partial class ItemEditViewModel : ObservableObject, IQueryAttributable
     [ObservableProperty] public partial string? Notes { get; set; }
     [ObservableProperty] public partial string? ErrorMessage { get; set; }
 
-    public async void ApplyQueryAttributes(IDictionary<string, object> query)
+    public async void Init(int id)
     {
-        if (query.TryGetValue("Id", out var value) && value is int id && id > 0)
+        _id = id;
+        PageTitle = "Edit item";
+        var item = await _service.GetItemAsync(id);
+        if (item is not null)
         {
-            _id = id;
-            PageTitle = "Edit item";
-            var item = await _service.GetItemAsync(id);
-            if (item is not null)
-            {
-                Name = item.Name;
-                Type = item.Type;
-                Theme = item.Theme;
-                ItemNumber = item.ItemNumber;
-                Location = item.Location;
-                PurchasedFrom = item.PurchasedFrom;
-                PriceText = item.Price?.ToString("0.00");
-                CurrentStockText = item.CurrentStock?.ToString();
-                IsDiscontinued = item.IsDiscontinued;
-                Notes = item.Notes;
-            }
+            Name = item.Name;
+            Type = item.Type;
+            Theme = item.Theme;
+            ItemNumber = item.ItemNumber;
+            Location = item.Location;
+            PurchasedFrom = item.PurchasedFrom;
+            PriceText = item.Price?.ToString("0.00");
+            CurrentStockText = item.CurrentStock?.ToString();
+            IsDiscontinued = item.IsDiscontinued;
+            Notes = item.Notes;
         }
     }
 
     [RelayCommand]
     private async Task Save()
     {
-        if (string.IsNullOrWhiteSpace(Name))
-        {
-            ErrorMessage = "Name is required.";
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(Type))
-        {
-            ErrorMessage = "Type is required.";
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(Name)) { ErrorMessage = "Name is required."; return; }
+        if (string.IsNullOrWhiteSpace(Type)) { ErrorMessage = "Type is required."; return; }
 
-        // Load the existing row (edit) or start a new one (add) so we never
-        // clobber fields the form doesn't expose yet.
         var item = _id > 0 ? await _service.GetItemAsync(_id) ?? new Item() : new Item();
         item.Name = Name.Trim();
         item.Type = Type.Trim();
@@ -82,16 +71,14 @@ public partial class ItemEditViewModel : ObservableObject, IQueryAttributable
         item.IsDiscontinued = IsDiscontinued;
         item.Notes = Blank(Notes);
 
-        if (_id > 0)
-            await _service.UpdateItemAsync(item);
-        else
-            await _service.AddItemAsync(item);
+        if (_id > 0) await _service.UpdateItemAsync(item);
+        else await _service.AddItemAsync(item);
 
-        await Shell.Current.GoToAsync("..");
+        _nav.Back();
     }
 
     [RelayCommand]
-    private Task Cancel() => Shell.Current.GoToAsync("..");
+    private void Cancel() => _nav.Back();
 
     private static string? Blank(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 }

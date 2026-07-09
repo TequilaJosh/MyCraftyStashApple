@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage x:Class="MyCraftyStash.Views.ComingSoonPage"
+<ContentView x:Class="MyCraftyStash.Views.ComingSoonView"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Name="Page">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <VerticalStackLayout Spacing="12" VerticalOptions="Center" HorizontalOptions="Center" Padding="40">
         <Label x:Name="IconLabel" Text="✦" FontSize="48" HorizontalOptions="Center"
                TextColor="{StaticResource StashPrimary}"/>
@@ -12,4 +11,4 @@
                HorizontalTextAlignment="Center" MaximumWidthRequest="360"
                TextColor="{StaticResource StashTextMuted}"/>
     </VerticalStackLayout>
-</ContentPage>
+</ContentView>

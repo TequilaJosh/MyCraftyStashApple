@@ -1,10 +1,15 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace MyCraftyStash;
 
 public partial class App : Application
 {
-    public App()
+    private readonly IServiceProvider _services;
+
+    public App(IServiceProvider services)
     {
         InitializeComponent();
+        _services = services;
         // The desktop app's signature look is the warm light theme; pin to it
         // so the custom sidebar/palette renders consistently on every device.
         UserAppTheme = AppTheme.Light;
@@ -12,6 +17,6 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new AppShell());
+        return new Window(_services.GetRequiredService<MainPage>());
     }
 }

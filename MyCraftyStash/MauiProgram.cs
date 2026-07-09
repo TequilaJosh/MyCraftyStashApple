@@ -20,19 +20,24 @@ public static class MauiProgram
 
         // Services
         builder.Services.AddSingleton<InventoryService>();
+        builder.Services.AddSingleton<AppNavigator>();
 
-        // ViewModels
+        // Shell / sidebar
+        builder.Services.AddSingleton<MainViewModel>();
+        builder.Services.AddSingleton<MainPage>();
+
+        // Section views (kept alive so their state persists)
         builder.Services.AddSingleton<InventoryViewModel>();
-        builder.Services.AddTransient<ItemDetailViewModel>();
-        builder.Services.AddTransient<ItemEditViewModel>();
-        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddSingleton<InventoryView>();
+        builder.Services.AddSingleton<SettingsViewModel>();
+        builder.Services.AddSingleton<SettingsView>();
+        builder.Services.AddTransient<ComingSoonView>();
 
-        // Pages
-        builder.Services.AddSingleton<InventoryPage>();
-        builder.Services.AddTransient<ItemDetailPage>();
-        builder.Services.AddTransient<ItemEditPage>();
-        builder.Services.AddTransient<SettingsPage>();
-        builder.Services.AddTransient<ComingSoonPage>();
+        // Pushed sub-views (fresh per navigation)
+        builder.Services.AddTransient<ItemDetailViewModel>();
+        builder.Services.AddTransient<ItemDetailView>();
+        builder.Services.AddTransient<ItemEditViewModel>();
+        builder.Services.AddTransient<ItemEditView>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();

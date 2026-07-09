@@ -5,50 +5,53 @@ using MyCraftyStash.Services;
 
 namespace MyCraftyStash.ViewModels;
 
-/// <summary>Read view for one item, with Edit and Delete. Reloads on appear so
-/// edits made on the edit page are reflected when navigating back.</summary>
-public partial class ItemDetailViewModel : ObservableObject, IQueryAttributable
+/// <summary>Read view for one item, with Edit and Delete.</summary>
+public partial class ItemDetailViewModel : ObservableObject, IRefreshOnReturn
 {
     private readonly InventoryService _service;
+    private readonly AppNavigator _nav;
+    private int _id;
 
-    public ItemDetailViewModel(InventoryService service)
+    public ItemDetailViewModel(InventoryService service, AppNavigator nav)
     {
         _service = service;
+        _nav = nav;
     }
 
     [ObservableProperty] public partial Item? Item { get; set; }
-    private int _id;
 
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    public async void Init(int id)
     {
-        if (query.TryGetValue("Id", out var value) && value is int id)
-            _id = id;
+        _id = id;
+        await Refresh();
     }
 
-    [RelayCommand]
-    public async Task Load()
+    public async Task Refresh()
     {
         if (_id > 0)
             Item = await _service.GetItemAsync(_id);
     }
 
     [RelayCommand]
-    private async Task Edit()
+    private void Edit()
     {
         if (Item is not null)
-            await Shell.Current.GoToAsync("itemedit", new Dictionary<string, object> { ["Id"] = Item.Id });
+            _nav.PushEditItem(Item.Id);
     }
 
     [RelayCommand]
     private async Task Delete()
     {
         if (Item is null) return;
-        var page = Shell.Current.CurrentPage;
-        bool ok = await page.DisplayAlert("Delete item",
+        var page = Application.Current?.Windows[0].Page;
+        bool ok = page is not null && await page.DisplayAlert("Delete item",
             $"Delete \"{Item.Name}\"? This can't be undone.", "Delete", "Cancel");
         if (!ok) return;
 
         await _service.DeleteItemAsync(Item.Id);
-        await Shell.Current.GoToAsync(".."); // back to the list
+        _nav.Back(); // back to the list (which reloads on return)
     }
+
+    [RelayCommand]
+    private void Back() => _nav.Back();
 }

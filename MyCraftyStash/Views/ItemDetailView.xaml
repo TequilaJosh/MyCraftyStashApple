@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.ItemDetailView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:ItemDetailViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Padding="20,16" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="‹ Back" Command="{Binding BackCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            <Label Grid.Column="1" Text="{Binding Item.Name}" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+            <Button Grid.Column="2" Text="Edit" Command="{Binding EditCommand}"
+                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+            <Button Grid.Column="3" Text="Delete" Command="{Binding DeleteCommand}"
+                    BackgroundColor="{StaticResource ErrorRed}" TextColor="White"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="20" MaximumWidthRequest="700">
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White">
+                    <Image Source="{Binding Item.ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                           Aspect="AspectFit" MaximumHeightRequest="320"/>
+                </Border>
+
+                <Label Text="Discontinued" IsVisible="{Binding Item.IsDiscontinued}"
+                       TextColor="{StaticResource ErrorRed}" FontAttributes="Bold"/>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24" RowSpacing="10"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                    <Label Grid.Row="0" Text="Type" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Item.Type, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="1" Text="Subtype" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Item.Subtype, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="2" Text="Theme" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Item.Theme, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="3" Text="Item #" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Item.ItemNumber, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="4" Text="Price" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Item.Price, StringFormat='{0:C}', TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="5" Text="Stock" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding Item.CurrentStock, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="6" Text="Location" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Item.Location, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="7" Text="From" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="7" Grid.Column="1" Text="{Binding Item.PurchasedFrom, TargetNullValue='—'}" TextColor="{StaticResource StashText}"/>
+                </Grid>
+
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding Item.Notes, Converter={StaticResource IsNotNullConverter}}">
+                    <Label Text="Notes" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource StashText}"/>
+                    <Label Text="{Binding Item.Notes}" TextColor="{StaticResource StashText}"/>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

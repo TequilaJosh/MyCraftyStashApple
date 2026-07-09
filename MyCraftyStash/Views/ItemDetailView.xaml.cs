@@ -2,9 +2,9 @@ using MyCraftyStash.ViewModels;
 
 namespace MyCraftyStash.Views;
 
-public partial class ItemEditPage : ContentPage
+public partial class ItemDetailView : ContentView
 {
-    public ItemEditPage(ItemEditViewModel vm)
+    public ItemDetailView(ItemDetailViewModel vm)
     {
         InitializeComponent();
         BindingContext = vm;

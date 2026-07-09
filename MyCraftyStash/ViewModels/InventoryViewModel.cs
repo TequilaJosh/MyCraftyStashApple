@@ -7,13 +7,15 @@ using MyCraftyStash.Services;
 namespace MyCraftyStash.ViewModels;
 
 /// <summary>The inventory grid: local search + card list, with add/open.</summary>
-public partial class InventoryViewModel : ObservableObject
+public partial class InventoryViewModel : ObservableObject, IRefreshOnReturn
 {
     private readonly InventoryService _service;
+    private readonly AppNavigator _nav;
 
-    public InventoryViewModel(InventoryService service)
+    public InventoryViewModel(InventoryService service, AppNavigator nav)
     {
         _service = service;
+        _nav = nav;
         SearchText = string.Empty;
     }
 
@@ -23,6 +25,8 @@ public partial class InventoryViewModel : ObservableObject
     [ObservableProperty] public partial bool Busy { get; set; }
     [ObservableProperty] public partial bool IsRefreshing { get; set; }
     [ObservableProperty] public partial bool IsEmpty { get; set; }
+
+    public Task Refresh() => Load();
 
     [RelayCommand]
     public async Task Load()
@@ -44,15 +48,14 @@ public partial class InventoryViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private Task Refresh() => Load();
+    private Task DoRefresh() => Load();
 
     [RelayCommand]
     private Task Search() => Load();
 
     [RelayCommand]
-    private Task AddItem() => Shell.Current.GoToAsync("itemedit");
+    private void AddItem() => _nav.PushAddItem();
 
     [RelayCommand]
-    private Task OpenItem(Item item) =>
-        Shell.Current.GoToAsync("itemdetail", new Dictionary<string, object> { ["Id"] = item.Id });
+    private void OpenItem(Item item) => _nav.PushDetail(item.Id);
 }

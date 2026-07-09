@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:DataType="vm:SettingsViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <Label Grid.Row="0" Text="Settings" FontSize="26" FontAttributes="Bold"
+               TextColor="{StaticResource StashText}" Padding="24,18,24,10"/>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="24,0,24,24" MaximumWidthRequest="620">
+                <Label Text="Your stash" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource StashText}"/>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24" RowSpacing="10" RowDefinitions="Auto,Auto">
+                    <Label Grid.Row="0" Text="Items" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding ItemCount}" TextColor="{StaticResource StashText}"/>
+                    <Label Grid.Row="1" Text="Database" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding DatabaseLocation}" FontSize="12"
+                           TextColor="{StaticResource StashText}" LineBreakMode="CharacterWrap"/>
+                </Grid>
+
+                <Label Text="About" FontAttributes="Bold" FontSize="18" Margin="0,20,0,0" TextColor="{StaticResource StashText}"/>
+                <Label Text="Version 0.1.0" TextColor="{StaticResource StashText}"/>
+                <Label Text="My Crafty Stash for Mac &amp; iPad. Your inventory lives in a database on this device."
+                       TextColor="{StaticResource StashTextMuted}"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

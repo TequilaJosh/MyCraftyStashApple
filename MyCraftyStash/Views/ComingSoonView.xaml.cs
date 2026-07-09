@@ -1,6 +1,6 @@
 namespace MyCraftyStash.Views;
 
-public partial class ComingSoonPage : ContentPage
+public partial class ComingSoonView : ContentView
 {
     // route -> (friendly title, glyph). Mirrors the desktop's sidebar labels.
     private static readonly Dictionary<string, (string Title, string Icon)> Sections = new()
@@ -19,19 +19,15 @@ public partial class ComingSoonPage : ContentPage
         ["about"] = ("About", "ⓘ"),
     };
 
-    public ComingSoonPage()
+    public ComingSoonView()
     {
         InitializeComponent();
     }
 
-    protected override void OnAppearing()
+    public void SetSection(string route)
     {
-        base.OnAppearing();
-        var loc = Shell.Current?.CurrentState?.Location?.OriginalString ?? "";
-        var route = loc.TrimStart('/').Split('/').LastOrDefault() ?? "";
         if (Sections.TryGetValue(route, out var s))
         {
-            Title = s.Title;
             TitleLabel.Text = s.Title;
             IconLabel.Text = s.Icon;
         }
