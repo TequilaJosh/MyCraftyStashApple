@@ -14,10 +14,11 @@
                    TextColor="{StaticResource StashTextMuted}"/>
 
             <!-- Stat tiles (tap to jump to the section) -->
-            <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Start">
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12"
+                  MaximumWidthRequest="440" HorizontalOptions="Start">
 
-                <Border StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}"
-                        WidthRequest="200" Padding="18" Margin="0,10,12,0">
+                <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0"
+                        BackgroundColor="{StaticResource StashCard}" Padding="18">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="inventory"/>
                     </Border.GestureRecognizers>
@@ -28,8 +29,8 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}"
-                        WidthRequest="200" Padding="18" Margin="0,10,12,0">
+                <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 14" StrokeThickness="0"
+                        BackgroundColor="{StaticResource StashCard}" Padding="18">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="projects"/>
                     </Border.GestureRecognizers>
@@ -40,8 +41,8 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}"
-                        WidthRequest="200" Padding="18" Margin="0,10,12,0">
+                <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0"
+                        BackgroundColor="{StaticResource StashCard}" Padding="18">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="wishlist"/>
                     </Border.GestureRecognizers>
@@ -52,8 +53,8 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}"
-                        WidthRequest="200" Padding="18" Margin="0,10,12,0">
+                <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 14" StrokeThickness="0"
+                        BackgroundColor="{StaticResource StashCard}" Padding="18">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="stocktracker"/>
                     </Border.GestureRecognizers>
@@ -63,8 +64,7 @@
                         <Label Text="items at 5 or fewer" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
                     </VerticalStackLayout>
                 </Border>
-
-            </FlexLayout>
+            </Grid>
         </VerticalStackLayout>
     </ScrollView>
 </ContentView>

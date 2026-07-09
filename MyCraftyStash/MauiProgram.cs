@@ -21,6 +21,10 @@ public static class MauiProgram
         // Services
         builder.Services.AddSingleton<InventoryService>();
         builder.Services.AddSingleton<WishlistService>();
+        builder.Services.AddSingleton<ProjectService>();
+        builder.Services.AddSingleton<InspirationService>();
+        builder.Services.AddSingleton<ReportService>();
+        builder.Services.AddSingleton<CardBuildService>();
         builder.Services.AddSingleton<AppNavigator>();
 
         // Shell / sidebar
@@ -65,6 +69,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ProjectEditView>();
         builder.Services.AddTransient<ItemPickerViewModel>();
         builder.Services.AddTransient<ItemPickerView>();
+        builder.Services.AddTransient<CardBuilderViewModel>();
+        builder.Services.AddTransient<CardBuilderView>();
 
         // Create the local database on first run (no-op afterwards).
         new InventoryService().InitializeAsync().GetAwaiter().GetResult();

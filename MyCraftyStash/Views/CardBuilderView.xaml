@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.CardBuilderView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
+             x:DataType="vm:CardBuilderViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="‹ Back" Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            <Label Grid.Column="1" Text="Card Build" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+            <Button Grid.Column="2" Text="Save" Command="{Binding SaveCommand}"
+                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="16" Padding="20,0,20,24" MaximumWidthRequest="760">
+
+                <Label Text="{Binding ProjectName}" FontSize="14" TextColor="{StaticResource StashTextMuted}"/>
+
+                <!-- Card base -->
+                <Label Text="Card base" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                <Picker ItemsSource="{Binding CardBases}" SelectedItem="{Binding CardBase}"/>
+
+                <!-- Add-step composer -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Add a step" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource StashText}"/>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Section" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                <Picker ItemsSource="{Binding Sections}" SelectedItem="{Binding NewSection}"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Step type" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                <Picker ItemsSource="{Binding StepTypes}" ItemDisplayBinding="{Binding Display}"
+                                        SelectedItem="{Binding NewStepType}"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Linked item -->
+                        <Label Text="Linked item (optional)" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8"
+                              IsVisible="{Binding HasSelectedNewItem, Converter={StaticResource InvertedBoolConverter}}">
+                            <Entry Grid.Column="0" Text="{Binding NewItemSearch}" Placeholder="Search inventory…"
+                                   ReturnCommand="{Binding SearchItemsCommand}"/>
+                            <Button Grid.Column="1" Text="Search" Command="{Binding SearchItemsCommand}"
+                                    Padding="12,4" BackgroundColor="{StaticResource StashSidebar}" TextColor="{StaticResource StashText}"/>
+                        </Grid>
+                        <!-- selected item chip -->
+                        <Border IsVisible="{Binding HasSelectedNewItem}" StrokeShape="RoundRectangle 8" StrokeThickness="0"
+                                BackgroundColor="{StaticResource StashSidebar}" Padding="10,6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding SelectedNewItemName}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                <Button Grid.Column="1" Text="✕" Command="{Binding ClearItemCommand}" Padding="8,0"
+                                        BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
+                            </Grid>
+                        </Border>
+                        <!-- candidates -->
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ItemCandidates}" Spacing="2">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Item">
+                                    <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="{StaticResource StashSidebar}" Padding="10,6">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.PickCandidateCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Name}" TextColor="{StaticResource StashText}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Cutting method" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                <Picker ItemsSource="{Binding CuttingMethods}" SelectedItem="{Binding NewCuttingMethod}"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Mat layer" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                                <Entry Text="{Binding NewMatLayerText}" Keyboard="Numeric" Placeholder="optional"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Text="Label (leave blank to auto-fill)" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                        <Entry Text="{Binding NewLabel}" Placeholder="auto"/>
+
+                        <Button Text="+ Add step" Command="{Binding AddStepCommand}" HorizontalOptions="Start"
+                                BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Exterior steps -->
+                <Label Text="Exterior" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource StashText}"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding ExteriorSteps}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CardStepRow">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}" Padding="12,8">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="4">
+                                    <Label Text="{Binding Label}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="▲" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"
+                                            Command="{Binding BindingContext.MoveUpCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="2" Text="▼" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"
+                                            Command="{Binding BindingContext.MoveDownCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="3" Text="✕" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                            Command="{Binding BindingContext.RemoveStepCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Inside steps -->
+                <Label Text="Inside" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource StashText}" Margin="0,8,0,0"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding InsideSteps}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CardStepRow">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource StashCard}" Padding="12,8">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="4">
+                                    <Label Text="{Binding Label}" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="▲" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"
+                                            Command="{Binding BindingContext.MoveUpCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="2" Text="▼" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"
+                                            Command="{Binding BindingContext.MoveDownCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="3" Text="✕" Padding="8,2" BackgroundColor="Transparent" TextColor="{StaticResource ErrorRed}"
+                                            Command="{Binding BindingContext.RemoveStepCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

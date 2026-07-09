@@ -83,6 +83,40 @@
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 
+                <!-- How it was made (card build) -->
+                <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="How it was made" FontAttributes="Bold" FontSize="16"
+                               TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="{Binding BuildCardButtonText}" Command="{Binding BuildCardCommand}"
+                                Padding="12,4" FontSize="13"
+                                BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
+                    </Grid>
+                    <Label Text="No build recorded yet — tap Build the card to plan it step by step."
+                           IsVisible="{Binding HasCardBuild, Converter={StaticResource InvertedBoolConverter}}"
+                           TextColor="{StaticResource StashTextMuted}"/>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding CardSteps}" Spacing="3">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProjectCardBuildStep">
+                                <Label Text="{Binding Label}">
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+                                            <Setter Property="Margin" Value="0,0,0,0"/>
+                                            <Style.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Section}" Value="inside">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+                                                    <Setter Property="Margin" Value="16,0,0,0"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

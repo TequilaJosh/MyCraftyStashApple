@@ -10,18 +10,25 @@ namespace MyCraftyStash.ViewModels;
 public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
 {
     private readonly ProjectService _service;
+    private readonly CardBuildService _cardService;
     private readonly AppNavigator _nav;
     private int _id;
 
-    public ProjectDetailViewModel(ProjectService service, AppNavigator nav)
+    public ProjectDetailViewModel(ProjectService service, CardBuildService cardService, AppNavigator nav)
     {
         _service = service;
+        _cardService = cardService;
         _nav = nav;
     }
 
     [ObservableProperty] public partial Project? Project { get; set; }
     public ObservableCollection<Item> ItemsUsed { get; } = new();
     [ObservableProperty] public partial bool HasItemsUsed { get; set; }
+
+    // Card build ("How it was made")
+    public ObservableCollection<ProjectCardBuildStep> CardSteps { get; } = new();
+    [ObservableProperty] public partial bool HasCardBuild { get; set; }
+    [ObservableProperty] public partial string BuildCardButtonText { get; set; } = "Build the card";
 
     public async void Init(int id)
     {
@@ -41,6 +48,22 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
                     ItemsUsed.Add(pi.Item);
         }
         HasItemsUsed = ItemsUsed.Count > 0;
+
+        // Card build summary
+        CardSteps.Clear();
+        var build = await _cardService.GetForProjectAsync(_id);
+        if (build is not null)
+            foreach (var s in build.Steps)
+                CardSteps.Add(s);
+        HasCardBuild = CardSteps.Count > 0;
+        BuildCardButtonText = HasCardBuild ? "Edit the build" : "Build the card";
+    }
+
+    [RelayCommand]
+    private void BuildCard()
+    {
+        if (Project is not null)
+            _nav.PushCardBuilder(Project.Id, Project.Name);
     }
 
     [RelayCommand]

@@ -92,6 +92,14 @@ public class AppNavigator
         Push(view);
     }
 
+    /// <summary>Open the card builder for a project.</summary>
+    public void PushCardBuilder(int projectId, string projectName)
+    {
+        var view = _sp.GetRequiredService<CardBuilderView>();
+        (view.BindingContext as CardBuilderViewModel)?.Init(projectId, projectName);
+        Push(view);
+    }
+
     public async void Back()
     {
         if (_stack.Count <= 1) return;
