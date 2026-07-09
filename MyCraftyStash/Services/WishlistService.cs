@@ -53,6 +53,12 @@ public class WishlistService
         await db.SaveChangesAsync();
     }
 
+    public async Task<int> GetCountAsync()
+    {
+        using var db = new InventoryDbContext();
+        return await db.WishlistItems.CountAsync();
+    }
+
     public async Task DeleteAsync(int id)
     {
         using var db = new InventoryDbContext();

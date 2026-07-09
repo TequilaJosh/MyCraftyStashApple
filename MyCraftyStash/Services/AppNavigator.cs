@@ -94,6 +94,7 @@ public class AppNavigator
 
     private View BuildSection(string route) => route switch
     {
+        "home" => _sp.GetRequiredService<HomeView>(),
         "inventory" => _sp.GetRequiredService<InventoryView>(),
         "wishlist" => _sp.GetRequiredService<WishlistView>(),
         "stocktracker" => _sp.GetRequiredService<StockTrackerView>(),

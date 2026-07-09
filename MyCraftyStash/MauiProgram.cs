@@ -28,6 +28,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<MainPage>();
 
         // Section views (kept alive so their state persists)
+        builder.Services.AddSingleton<HomeViewModel>();
+        builder.Services.AddSingleton<HomeView>();
         builder.Services.AddSingleton<InventoryViewModel>();
         builder.Services.AddSingleton<InventoryView>();
         builder.Services.AddSingleton<SettingsViewModel>();

@@ -95,6 +95,13 @@ public class InventoryService
         return await db.Items.CountAsync();
     }
 
+    /// <summary>Count of items running low (stock set and at/below 5).</summary>
+    public async Task<int> GetLowStockCountAsync()
+    {
+        using var db = new InventoryDbContext();
+        return await db.Items.CountAsync(i => i.CurrentStock != null && i.CurrentStock <= 5);
+    }
+
     /// <summary>Items whose sentiment text matches — powers Sentiment Search.</summary>
     public async Task<List<Item>> SearchBySentimentAsync(string query)
     {
