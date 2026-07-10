@@ -3,65 +3,191 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:Name="Root"
              x:DataType="vm:HomeViewModel">
 
+    <ContentView.Resources>
+        <Color x:Key="OutRed">#A82C32</Color>
+        <Color x:Key="LowAmber">#C77A2A</Color>
+        <Color x:Key="OutSoft">#F8E0E1</Color>
+        <Color x:Key="LowSoft">#F4E5D0</Color>
+        <Color x:Key="SuccessGreen">#3F8F62</Color>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashCard}"/>
+            <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+            <Setter Property="Padding" Value="20,16"/>
+        </Style>
+        <Style x:Key="StatCap" TargetType="Label">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+        </Style>
+        <Style x:Key="StatNum" TargetType="Label">
+            <Setter Property="FontSize" Value="34"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+        </Style>
+        <Style x:Key="StatFoot" TargetType="Label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style x:Key="PanelCard" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashCard}"/>
+            <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+    </ContentView.Resources>
+
     <ScrollView>
-        <VerticalStackLayout Spacing="18" Padding="24">
+        <VerticalStackLayout Spacing="20" Padding="32,24">
 
-            <Label Text="Welcome to your stash" FontSize="28" FontAttributes="Bold"
-                   TextColor="{StaticResource StashText}"/>
-            <Label Text="A quiet little catalog for your noisy craft room."
-                   TextColor="{StaticResource StashTextMuted}"/>
+            <VerticalStackLayout Spacing="0">
+                <Label Text="My Crafty Stash  /  Home" Style="{StaticResource Breadcrumb}"/>
+                <Label Text="Welcome back" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource StashText}" Margin="0,4,0,0"/>
+                <Label Text="Here's what's happening in your craft room." Style="{StaticResource PageSubtitle}"/>
+            </VerticalStackLayout>
 
-            <!-- Stat tiles (tap to jump to the section) -->
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12"
-                  MaximumWidthRequest="440" HorizontalOptions="Start">
-
-                <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0"
-                        BackgroundColor="{StaticResource StashCard}" Padding="18">
+            <!-- Stat cards -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="16">
+                <Border Grid.Column="0" Style="{StaticResource StatCard}">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="inventory"/>
                     </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="◰  Inventory" FontSize="13" TextColor="{StaticResource StashTextMuted}"/>
-                        <Label Text="{Binding ItemCount}" FontSize="34" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-                        <Label Text="items in your stash" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                    <VerticalStackLayout>
+                        <Label Text="TOTAL ITEMS" Style="{StaticResource StatCap}"/>
+                        <Label Text="{Binding TotalItems}" Style="{StaticResource StatNum}"/>
+                        <Label Text="{Binding ItemsThisMonthText}" Style="{StaticResource StatFoot}" TextColor="{StaticResource SuccessGreen}"/>
                     </VerticalStackLayout>
                 </Border>
-
-                <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 14" StrokeThickness="0"
-                        BackgroundColor="{StaticResource StashCard}" Padding="18">
+                <Border Grid.Column="1" Style="{StaticResource StatCard}">
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="projects"/>
+                        <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="sentiment"/>
                     </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="✿  Projects" FontSize="13" TextColor="{StaticResource StashTextMuted}"/>
-                        <Label Text="{Binding ProjectCount}" FontSize="34" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-                        <Label Text="makes recorded" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                    <VerticalStackLayout>
+                        <Label Text="SENTIMENTS INDEXED" Style="{StaticResource StatCap}"/>
+                        <Label Text="{Binding SentimentsIndexed}" Style="{StaticResource StatNum}"/>
+                        <Label Text="{Binding CategoriesText}" Style="{StaticResource StatFoot}"/>
                     </VerticalStackLayout>
                 </Border>
-
-                <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0"
-                        BackgroundColor="{StaticResource StashCard}" Padding="18">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="wishlist"/>
-                    </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="♡  Wish List" FontSize="13" TextColor="{StaticResource StashTextMuted}"/>
-                        <Label Text="{Binding WishlistCount}" FontSize="34" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-                        <Label Text="things you want" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 14" StrokeThickness="0"
-                        BackgroundColor="{StaticResource StashCard}" Padding="18">
+                <Border Grid.Column="2" Style="{StaticResource StatCard}">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="stocktracker"/>
                     </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="◐  Running low" FontSize="13" TextColor="{StaticResource StashTextMuted}"/>
-                        <Label Text="{Binding LowStockCount}" FontSize="34" FontAttributes="Bold" TextColor="{StaticResource StashPrimary}"/>
-                        <Label Text="items at 5 or fewer" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                    <VerticalStackLayout>
+                        <Label Text="LOW / OUT" Style="{StaticResource StatCap}"/>
+                        <Label Text="{Binding LowOrOutCount}" Style="{StaticResource StatNum}" TextColor="{StaticResource StashPrimary}"/>
+                        <Label Text="needs reorder" Style="{StaticResource StatFoot}"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="projects"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout>
+                        <Label Text="PROJECTS" Style="{StaticResource StatCap}"/>
+                        <Label Text="{Binding ProjectCount}" Style="{StaticResource StatNum}"/>
+                        <Label Text="{Binding ProjectsThisMonthText}" Style="{StaticResource StatFoot}" TextColor="{StaticResource SuccessGreen}"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Running low + Recent projects -->
+            <Grid ColumnDefinitions="2*,3*" ColumnSpacing="16">
+
+                <!-- Running low -->
+                <Border Grid.Column="0" Style="{StaticResource PanelCard}" VerticalOptions="Start">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Running low" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                            <Label Grid.Column="1" Text="View all →" FontSize="13" TextColor="{StaticResource StashPrimary}" VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="stocktracker"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <Label Text="Nothing running low — you're well stocked!" FontSize="13" TextColor="{StaticResource StashTextMuted}"
+                               IsVisible="{Binding HasRunningLow, Converter={StaticResource InvertedBoolConverter}}"/>
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding RunningLow}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HomeStatItem">
+                                    <Grid ColumnDefinitions="36,*,90,Auto" ColumnSpacing="10">
+                                        <Border Grid.Column="0" WidthRequest="36" HeightRequest="36" StrokeThickness="0" StrokeShape="RoundRectangle 6" BackgroundColor="{StaticResource StashSidebar}">
+                                            <Label Text="{Binding StockLabel}" FontSize="9" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource StashTextMuted}"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource StashText}" LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding Number}" FontSize="11" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding HasNumber}"/>
+                                        </VerticalStackLayout>
+                                        <!-- little stock bar -->
+                                        <Border Grid.Column="2" HeightRequest="6" StrokeThickness="0" StrokeShape="RoundRectangle 3" BackgroundColor="{StaticResource StashSidebar}" VerticalOptions="Center">
+                                            <BoxView Color="{StaticResource OutRed}" WidthRequest="20" HorizontalOptions="Start"/>
+                                        </Border>
+                                        <Border Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,3" VerticalOptions="Center" BackgroundColor="{StaticResource LowSoft}">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsOut}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{StaticResource OutSoft}"/>
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Text="{Binding StockLabel}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource LowAmber}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsOut}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource OutRed}"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Recent projects -->
+                <Border Grid.Column="1" Style="{StaticResource PanelCard}" VerticalOptions="Start">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Recent projects" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                            <Label Grid.Column="1" Text="View all →" FontSize="13" TextColor="{StaticResource StashPrimary}" VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoCommand}" CommandParameter="projects"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <Label Text="No projects yet — start one from the Projects tab." FontSize="13" TextColor="{StaticResource StashTextMuted}"
+                               IsVisible="{Binding HasRecentProjects, Converter={StaticResource InvertedBoolConverter}}"/>
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding RecentProjects}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HomeRecentProject">
+                                    <Border WidthRequest="200" Margin="0,0,12,12" StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="{StaticResource StashSurface}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.OpenProjectCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout Spacing="0">
+                                            <Border HeightRequest="130" StrokeThickness="0" StrokeShape="RoundRectangle 10,10,0,0" BackgroundColor="{StaticResource StashSidebar}">
+                                                <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFill"/>
+                                            </Border>
+                                            <VerticalStackLayout Padding="10,8" Spacing="2">
+                                                <Label Text="{Binding Name}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource StashText}" LineBreakMode="TailTruncation"/>
+                                                <Label FontSize="11" TextColor="{StaticResource StashTextMuted}">
+                                                    <Label.Text>
+                                                        <MultiBinding StringFormat="{}{0} · {1}">
+                                                            <Binding Path="DateText"/>
+                                                            <Binding Path="SupplyText"/>
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                            </VerticalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
                     </VerticalStackLayout>
                 </Border>
             </Grid>
