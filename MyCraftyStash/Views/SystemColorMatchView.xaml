@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.SystemColorMatchView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:Name="Root"
+             x:DataType="vm:SystemColorMatchViewModel">
+
+    <ContentView.Resources>
+        <Color x:Key="OwnedGreen">#3F8F62</Color>
+        <Style x:Key="FilterChip" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+            <Setter Property="BorderColor" Value="{StaticResource StashBorder}"/>
+            <Setter Property="BorderWidth" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="24,16">
+
+        <!-- Title + search -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,320">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label FontSize="22" FontAttributes="Bold" TextColor="{StaticResource StashText}">
+                    <Label.Text>
+                        <MultiBinding StringFormat="{}{0} → TE Color Match">
+                            <Binding Path="SystemLabel"/>
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+                <Label Text="Hover any row to see what to order. ✓ marks colors already in your stash." FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                <Label Text="{Binding SummaryText}" FontSize="12" TextColor="{StaticResource StashPrimary}"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2" VerticalOptions="Start">
+                <Entry Placeholder="Search color or code..." Text="{Binding SearchText}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+            </Border>
+        </Grid>
+
+        <!-- Filter chips -->
+        <HorizontalStackLayout Grid.Row="1" Spacing="8" Margin="0,12,0,10">
+            <Button Text="All" Command="{Binding SetFilterCommand}" CommandParameter="All" Style="{StaticResource FilterChip}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsAll}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                        <Setter Property="TextColor" Value="White"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Text="✓ Owned" Command="{Binding SetFilterCommand}" CommandParameter="Owned" Style="{StaticResource FilterChip}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsOwned}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                        <Setter Property="TextColor" Value="White"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Text="○ Missing" Command="{Binding SetFilterCommand}" CommandParameter="Missing" Style="{StaticResource FilterChip}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsMissing}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                        <Setter Property="TextColor" Value="White"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+        </HorizontalStackLayout>
+
+        <!-- Column headers -->
+        <Grid Grid.Row="2" ColumnDefinitions="60,70,110,*,260" Padding="8,6" BackgroundColor="{StaticResource StashSidebar}">
+            <Label Grid.Column="0" Text="TE" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="1" Text="Supply" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="2" Text="Code" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+            <Label Grid.Column="3" Text="Taylored Expressions Color" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+            <Label Grid.Column="4" Text="Notes" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+        </Grid>
+
+        <!-- Rows -->
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Filtered}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="No colors match this filter." FontSize="14" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="Center" Margin="0,40,0,0"/>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ColorMatchRow">
+                    <Grid ColumnDefinitions="60,70,110,*,260" Padding="8,10">
+                        <Grid.GestureRecognizers/>
+                        <Label Grid.Column="0" Text="{Binding TeGlyph}" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalOptions="Center"
+                               TextColor="{StaticResource StashTextMuted}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsOwnedTe}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource OwnedGreen}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="1" Text="{Binding ExternalGlyph}" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalOptions="Center"
+                               TextColor="{StaticResource StashTextMuted}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsOwnedExternal}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource OwnedGreen}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="2" Text="{Binding Code}" FontSize="13" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        <Label Grid.Column="3" Text="{Binding TeColorName}" FontSize="13" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        <Label Grid.Column="4" Text="{Binding Notes}" FontSize="12" FontAttributes="Italic" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center" IsVisible="{Binding HasNotes}"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

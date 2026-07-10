@@ -27,6 +27,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<CardBuildService>();
         builder.Services.AddSingleton<CalendarService>();
         builder.Services.AddSingleton<AddressBookService>();
+        builder.Services.AddSingleton<ColorMatchService>();
         builder.Services.AddSingleton<AppNavigator>();
 
         // Shell / sidebar
@@ -56,6 +57,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<AddressBookViewModel>();
         builder.Services.AddSingleton<SocialViewModel>();
         builder.Services.AddSingleton<SocialView>();
+        builder.Services.AddSingleton<ColorMatchViewModel>();
+        builder.Services.AddSingleton<ColorMatchView>();
         builder.Services.AddTransient<ReportViewModel>();
         builder.Services.AddTransient<ReportView>();
         builder.Services.AddTransient<ComingSoonView>();

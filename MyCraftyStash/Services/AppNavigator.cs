@@ -126,6 +126,7 @@ public class AppNavigator
         "projects" => _sp.GetRequiredService<ProjectsView>(),
         "envelope" => _sp.GetRequiredService<EnvelopeExpertView>(),
         "social" => _sp.GetRequiredService<SocialView>(),
+        "colormatch" => _sp.GetRequiredService<ColorMatchView>(),
         "expense" => Report(ReportKind.Expense),
         "sales" => Report(ReportKind.Sales),
         "settings" => _sp.GetRequiredService<SettingsView>(),

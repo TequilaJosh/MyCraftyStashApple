@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.ColorMatchView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:views="clr-namespace:MyCraftyStash.Views"
+             x:Name="Root"
+             x:DataType="vm:ColorMatchViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Tab bar -->
+        <Grid Grid.Row="0" RowDefinitions="*,1" BackgroundColor="{StaticResource StashCard}">
+            <HorizontalStackLayout Margin="20,0" Spacing="4">
+                <Border Padding="16,12" BackgroundColor="Transparent">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ShowDmcCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="*,3" RowSpacing="8">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✦" FontSize="15" VerticalOptions="Center" TextColor="{StaticResource StashTextMuted}"/>
+                            <Label Text="DMC Floss" FontSize="13" FontAttributes="Bold" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsDmcTab}" Value="True"><Setter Property="TextColor" Value="{StaticResource StashPrimary}"/></DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsDmcTab}" Value="False"><Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/></DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </HorizontalStackLayout>
+                        <BoxView Grid.Row="1" IsVisible="{Binding IsDmcTab}" Color="{StaticResource StashPrimary}"/>
+                    </Grid>
+                </Border>
+                <Border Padding="16,12" BackgroundColor="Transparent">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ShowOloCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="*,3" RowSpacing="8">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✎" FontSize="15" VerticalOptions="Center" TextColor="{StaticResource StashTextMuted}"/>
+                            <Label Text="OLO Marker" FontSize="13" FontAttributes="Bold" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsOloTab}" Value="True"><Setter Property="TextColor" Value="{StaticResource StashPrimary}"/></DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsOloTab}" Value="False"><Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/></DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </HorizontalStackLayout>
+                        <BoxView Grid.Row="1" IsVisible="{Binding IsOloTab}" Color="{StaticResource StashPrimary}"/>
+                    </Grid>
+                </Border>
+            </HorizontalStackLayout>
+            <BoxView Grid.Row="1" Color="{StaticResource StashBorder}" HeightRequest="1"/>
+        </Grid>
+
+        <!-- Tab content -->
+        <Grid Grid.Row="1">
+            <views:SystemColorMatchView BindingContext="{Binding DmcVM}"
+                                        IsVisible="{Binding BindingContext.IsDmcTab, Source={x:Reference Root}, x:DataType=vm:ColorMatchViewModel}"/>
+            <views:SystemColorMatchView BindingContext="{Binding OloVM}"
+                                        IsVisible="{Binding BindingContext.IsOloTab, Source={x:Reference Root}, x:DataType=vm:ColorMatchViewModel}"/>
+        </Grid>
+    </Grid>
+</ContentView>

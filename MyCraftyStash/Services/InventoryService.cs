@@ -22,6 +22,18 @@ public class InventoryService
         // introduced after a user's DB was first created. Safe/idempotent:
         // SQLite errors if the column exists, which we swallow.
         await AddColumnIfMissingAsync(db, "projects", "quantity_on_hand", "INTEGER");
+
+        // The TE color-match chart lives in the desktop's settings.db; on a
+        // fresh MAUI DB the table won't exist yet. Create it empty so the
+        // Color Match view can query it (it stays empty until data is imported).
+        await db.Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS color_matches (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            system TEXT NOT NULL,
+            external_code TEXT NOT NULL,
+            te_color_name TEXT NOT NULL,
+            external_hex TEXT,
+            te_color_hex TEXT,
+            notes TEXT)");
     }
 
     private static async Task AddColumnIfMissingAsync(InventoryDbContext db, string table, string column, string type)

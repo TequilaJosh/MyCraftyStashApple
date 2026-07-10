@@ -27,6 +27,7 @@ namespace MyCraftyStash.Data
         public DbSet<CalendarEvent> CalendarEvents { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<ColorMatch> ColorMatches { get; set; }
 
         public InventoryDbContext() { }
 
