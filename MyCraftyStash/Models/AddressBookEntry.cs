@@ -74,5 +74,10 @@ namespace MyCraftyStash.Models
                 return string.Join("\n", parts);
             }
         }
+
+        [NotMapped] public bool HasAddress => !string.IsNullOrWhiteSpace(AddressLine1) || !string.IsNullOrWhiteSpace(City);
+        [NotMapped] public bool HasPhone => !string.IsNullOrWhiteSpace(Phone);
+        [NotMapped] public bool HasEmail => !string.IsNullOrWhiteSpace(Email);
+        [NotMapped] public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
     }
 }

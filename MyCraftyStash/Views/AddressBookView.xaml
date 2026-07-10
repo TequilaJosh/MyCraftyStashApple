@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView x:Class="MyCraftyStash.Views.AddressBookView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             xmlns:models="clr-namespace:MyCraftyStash.Models"
+             x:Name="Root"
+             x:DataType="vm:AddressBookViewModel">
+
+    <ContentView.Resources>
+        <Color x:Key="SuccessGreen">#3F8F62</Color>
+        <Color x:Key="SuccessSoft">#E2EFE6</Color>
+        <Color x:Key="DangerSoft">#F8E0E1</Color>
+        <Color x:Key="DangerRed">#A82C32</Color>
+        <Style x:Key="AbField" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+            <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+            <Setter Property="Padding" Value="10,3"/>
+        </Style>
+        <Style x:Key="AbLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+        </Style>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border Grid.Row="0" BackgroundColor="{StaticResource StashCard}" Padding="24,16"
+                Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Address Book" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    <Label Text="Store and manage addresses and notes for people you know" FontSize="14" TextColor="{StaticResource StashTextMuted}"/>
+                </VerticalStackLayout>
+                <Button Grid.Column="1" Text="+ Add Person" Style="{StaticResource SecondaryButton}" VerticalOptions="Center" Command="{Binding StartAddCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <Grid Grid.Row="1" ColumnDefinitions="300,*">
+
+            <!-- Left: search + list -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" BackgroundColor="{StaticResource StashSidebar}">
+                <Border Grid.Row="0" BackgroundColor="{StaticResource StashCard}" Padding="12,10" Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2">
+                            <Entry Placeholder="Search name, city, notes..." Text="{Binding SearchText}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+                        <Button Grid.Column="1" Text="✕" FontSize="11" Padding="8,6" BackgroundColor="{StaticResource StashSidebar}" TextColor="{StaticResource StashText}" CornerRadius="8" Command="{Binding ClearSearchCommand}"/>
+                    </Grid>
+                </Border>
+                <ScrollView Grid.Row="1">
+                    <VerticalStackLayout Padding="8,4">
+                        <Label Text="No entries found. Tap '+ Add Person' to get started." FontSize="13" TextColor="{StaticResource StashTextMuted}"
+                               HorizontalTextAlignment="Center" Margin="12,48,12,0" IsVisible="{Binding IsEmpty}"/>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Entries}" Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:AddressBookEntry">
+                                    <Border Margin="0,4" StrokeShape="RoundRectangle 8" StrokeThickness="1" Padding="12,10"
+                                            BackgroundColor="Transparent" Stroke="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource StashCard}"/>
+                                                <Setter Property="Stroke" Value="{StaticResource StashPrimary}"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SelectEntryCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label Text="{Binding FullName}" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                            <Label Text="{Binding City}" FontSize="12" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding City, Converter={StaticResource IsNotNullConverter}}"/>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+
+            <!-- Right: detail / form -->
+            <Grid Grid.Column="1">
+
+                <!-- Empty -->
+                <Label Text="Select a person from the list, or tap '+ Add Person' to create a new entry."
+                       FontSize="15" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="Center"
+                       VerticalOptions="Center" HorizontalOptions="Center" MaximumWidthRequest="400">
+                    <Label.IsVisible>
+                        <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                            <Binding Path="HasSelection" Converter="{StaticResource InvertedBoolConverter}"/>
+                            <Binding Path="IsFormOpen" Converter="{StaticResource InvertedBoolConverter}"/>
+                        </MultiBinding>
+                    </Label.IsVisible>
+                </Label>
+
+                <!-- Detail -->
+                <ScrollView Padding="28,24">
+                    <ScrollView.IsVisible>
+                        <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                            <Binding Path="HasSelection"/>
+                            <Binding Path="IsFormOpen" Converter="{StaticResource InvertedBoolConverter}"/>
+                        </MultiBinding>
+                    </ScrollView.IsVisible>
+                    <VerticalStackLayout Spacing="16">
+                        <Border IsVisible="{Binding StatusMessage, Converter={StaticResource IsNotNullConverter}}" BackgroundColor="{StaticResource SuccessSoft}" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="12,8">
+                            <Label Text="{Binding StatusMessage}" TextColor="{StaticResource SuccessGreen}" FontAttributes="Bold" FontSize="12"/>
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding SelectedEntry.FullName}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                <Label Text="{Binding SelectedEntry.Email}" FontSize="13" TextColor="{StaticResource StashPrimary}" IsVisible="{Binding SelectedEntry.Email, Converter={StaticResource IsNotNullConverter}}"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Start">
+                                <Button Text="✏ Edit" Style="{StaticResource SecondaryButton}" Padding="12,7" Command="{Binding StartEditCommand}"/>
+                                <Button Text="🗑 Delete" BackgroundColor="{StaticResource DangerSoft}" TextColor="{StaticResource DangerRed}" CornerRadius="10" Padding="12,7" Command="{Binding DeleteEntryCommand}"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="📍 ADDRESS" Style="{StaticResource AbLabel}"/>
+                                <Label Text="{Binding SelectedEntry.DisplayAddress}" TextColor="{StaticResource StashText}" IsVisible="{Binding SelectedEntry.HasAddress}"/>
+                                <Label Text="No address on file." FontAttributes="Italic" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding SelectedEntry.HasAddress, Converter={StaticResource InvertedBoolConverter}}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="📞 CONTACT" Style="{StaticResource AbLabel}"/>
+                                <Grid ColumnDefinitions="60,*" IsVisible="{Binding SelectedEntry.HasPhone}">
+                                    <Label Text="Phone:" TextColor="{StaticResource StashTextMuted}"/>
+                                    <Label Grid.Column="1" Text="{Binding SelectedEntry.Phone}" TextColor="{StaticResource StashText}"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="60,*" IsVisible="{Binding SelectedEntry.HasEmail}">
+                                    <Label Text="Email:" TextColor="{StaticResource StashTextMuted}"/>
+                                    <Label Grid.Column="1" Text="{Binding SelectedEntry.Email}" TextColor="{StaticResource StashPrimary}"/>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="📝 NOTES" Style="{StaticResource AbLabel}"/>
+                                <Label Text="{Binding SelectedEntry.Notes}" TextColor="{StaticResource StashText}" IsVisible="{Binding SelectedEntry.HasNotes}"/>
+                                <Label Text="No notes added yet." FontAttributes="Italic" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding SelectedEntry.HasNotes, Converter={StaticResource InvertedBoolConverter}}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Add/Edit form -->
+                <ScrollView Padding="28,24" IsVisible="{Binding IsFormOpen}">
+                    <VerticalStackLayout Spacing="10" MaximumWidthRequest="640">
+                        <Label Text="{Binding FormHeading}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                        <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="10,7">
+                            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource DangerRed}" FontSize="12"/>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,16,*">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="First Name *" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditFirstName}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Label Text="Last Name" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditLastName}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Text="Address Line 1" Style="{StaticResource AbLabel}"/>
+                        <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditAddressLine1}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                        <Label Text="Address Line 2" Style="{StaticResource AbLabel}"/>
+                        <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditAddressLine2}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+
+                        <Grid ColumnDefinitions="2*,12,*,12,*">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="City" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditCity}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Label Text="State" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditState}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="4" Spacing="4">
+                                <Label Text="Zip Code" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditZipCode}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Text="Country" Style="{StaticResource AbLabel}"/>
+                        <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditCountry}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+
+                        <Grid ColumnDefinitions="*,16,*">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Phone" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditPhone}" Keyboard="Telephone" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Label Text="Email" Style="{StaticResource AbLabel}"/>
+                                <Border Style="{StaticResource AbField}"><Entry Text="{Binding EditEmail}" Keyboard="Email" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/></Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Text="Notes" Style="{StaticResource AbLabel}"/>
+                        <Border Style="{StaticResource AbField}" Padding="10,6">
+                            <Editor Text="{Binding EditNotes}" AutoSize="TextChanges" MinimumHeightRequest="90" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+
+                        <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
+                            <Button Text="Save" BackgroundColor="{StaticResource StashPrimary}" TextColor="White" CornerRadius="10" Padding="18,9" Command="{Binding SaveEntryCommand}"/>
+                            <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Padding="18,9" Command="{Binding CancelEditCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentView>

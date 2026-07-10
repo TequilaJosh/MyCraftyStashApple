@@ -125,6 +125,7 @@ public class AppNavigator
         "inspiration" => _sp.GetRequiredService<InspirationView>(),
         "projects" => _sp.GetRequiredService<ProjectsView>(),
         "envelope" => _sp.GetRequiredService<EnvelopeExpertView>(),
+        "social" => _sp.GetRequiredService<SocialView>(),
         "expense" => Report(ReportKind.Expense),
         "sales" => Report(ReportKind.Sales),
         "settings" => _sp.GetRequiredService<SettingsView>(),
