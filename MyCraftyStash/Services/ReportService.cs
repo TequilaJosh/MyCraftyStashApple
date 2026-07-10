@@ -3,39 +3,46 @@ using MyCraftyStash.Data;
 
 namespace MyCraftyStash.Services;
 
-/// <summary>One line in an expense/sales report.</summary>
+/// <summary>One line in an expense/sales report (item + date + qty + prices).</summary>
 public class ReportRow
 {
     public string ItemName { get; set; } = string.Empty;
+    public string ItemType { get; set; } = string.Empty;
+    public string? ItemNumber { get; set; }
     public DateTime? Date { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal LineTotal { get; set; }
 
-    public string DateText => Date?.ToString("MMM d, yyyy") ?? "";
-    public string UnitPriceText => UnitPrice.ToString("C");
-    public string LineTotalText => LineTotal.ToString("C");
-    public string QuantityText => $"×{Quantity}";
+    public string DateText => Date?.ToString("MMM d, yyyy") ?? "-";
+    public string ItemNumberText => string.IsNullOrEmpty(ItemNumber) ? "" : $"#{ItemNumber}";
+    public string UnitPriceText => "$" + UnitPrice.ToString("F2");
+    public string LineTotalText => "$" + LineTotal.ToString("F2");
+    public string QuantityText => Quantity.ToString();
 }
 
 public class ReportResult
 {
-    public decimal Total { get; set; }
     public List<ReportRow> Rows { get; set; } = new();
 }
 
-/// <summary>Aggregates purchase (expense) and sale history for the report views.</summary>
+/// <summary>Aggregates purchase (expense) and sale history over a date range.</summary>
 public class ReportService
 {
-    public async Task<ReportResult> GetExpenseReportAsync()
+    public async Task<ReportResult> GetExpenseReportAsync(DateTime? from, DateTime? to)
     {
         using var db = new InventoryDbContext();
-        var rows = await db.ItemPurchases.AsNoTracking()
-            .Include(p => p.Item)
+        IQueryable<Models.ItemPurchase> q = db.ItemPurchases.AsNoTracking().Include(p => p.Item);
+        if (from.HasValue) q = q.Where(p => (p.DatePurchased ?? p.CreatedAt) >= from.Value);
+        if (to.HasValue) { var upper = to.Value.Date.AddDays(1); q = q.Where(p => (p.DatePurchased ?? p.CreatedAt) < upper); }
+
+        var rows = await q
             .OrderByDescending(p => p.DatePurchased ?? p.CreatedAt)
             .Select(p => new ReportRow
             {
                 ItemName = p.Item != null ? p.Item.Name : "(deleted item)",
+                ItemType = p.Item != null ? p.Item.Type : "",
+                ItemNumber = p.Item != null ? p.Item.ItemNumber : null,
                 Date = p.DatePurchased ?? p.CreatedAt,
                 Quantity = p.Quantity,
                 UnitPrice = p.PricePerItem,
@@ -43,18 +50,23 @@ public class ReportService
             })
             .ToListAsync();
 
-        return new ReportResult { Rows = rows, Total = rows.Sum(r => r.LineTotal) };
+        return new ReportResult { Rows = rows };
     }
 
-    public async Task<ReportResult> GetSalesReportAsync()
+    public async Task<ReportResult> GetSalesReportAsync(DateTime? from, DateTime? to)
     {
         using var db = new InventoryDbContext();
-        var rows = await db.ItemSales.AsNoTracking()
-            .Include(s => s.Item)
+        IQueryable<Models.ItemSale> q = db.ItemSales.AsNoTracking().Include(s => s.Item);
+        if (from.HasValue) q = q.Where(s => (s.DateSold ?? s.CreatedAt) >= from.Value);
+        if (to.HasValue) { var upper = to.Value.Date.AddDays(1); q = q.Where(s => (s.DateSold ?? s.CreatedAt) < upper); }
+
+        var rows = await q
             .OrderByDescending(s => s.DateSold ?? s.CreatedAt)
             .Select(s => new ReportRow
             {
                 ItemName = s.Item != null ? s.Item.Name : "(deleted item)",
+                ItemType = s.Item != null ? s.Item.Type : "",
+                ItemNumber = s.Item != null ? s.Item.ItemNumber : null,
                 Date = s.DateSold ?? s.CreatedAt,
                 Quantity = s.Quantity,
                 UnitPrice = s.SalePrice,
@@ -62,6 +74,6 @@ public class ReportService
             })
             .ToListAsync();
 
-        return new ReportResult { Rows = rows, Total = rows.Sum(r => r.LineTotal) };
+        return new ReportResult { Rows = rows };
     }
 }

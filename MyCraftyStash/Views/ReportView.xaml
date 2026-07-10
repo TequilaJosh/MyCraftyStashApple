@@ -4,50 +4,175 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
              xmlns:svc="clr-namespace:MyCraftyStash.Services"
+             x:Name="Root"
              x:DataType="vm:ReportViewModel">
+
+    <ContentView.Resources>
+        <Style x:Key="SummaryCard" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashCard}"/>
+            <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+        </Style>
+        <Style x:Key="CardCapLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="CardValue" TargetType="Label">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+        </Style>
+    </ContentView.Resources>
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,4">
-            <Label Text="My Crafty Stash  /  Reports" Style="{StaticResource Breadcrumb}"/>
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="32,22,32,14" Spacing="0">
+            <Label Text="{Binding BreadcrumbText}" Style="{StaticResource Breadcrumb}"/>
             <Label Text="{Binding Title}" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+            <Label Text="{Binding Subtitle}" Style="{StaticResource PageSubtitle}"/>
         </VerticalStackLayout>
 
-        <!-- Total banner -->
-        <Border Grid.Row="1" StrokeShape="RoundRectangle 12" StrokeThickness="0"
-                BackgroundColor="{StaticResource StashCard}" Padding="18,14" Margin="24,4,24,10">
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Text="{Binding TotalLabel}" FontSize="14" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
-                <Label Grid.Column="1" Text="{Binding TotalText}" FontSize="26" FontAttributes="Bold"
-                       TextColor="{StaticResource StashPrimary}"/>
-            </Grid>
+        <!-- Filter bar -->
+        <Border Grid.Row="1" BackgroundColor="{StaticResource StashSidebar}"
+                Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1" Padding="24,14">
+            <FlexLayout Wrap="Wrap" AlignItems="Center" JustifyContent="Start">
+                <HorizontalStackLayout Spacing="8" Margin="0,0,24,0">
+                    <Label Text="From:" FontAttributes="Bold" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                    <DatePicker Date="{Binding FromDate}" WidthRequest="140" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8" Margin="0,0,24,0">
+                    <Label Text="To:" FontAttributes="Bold" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                    <DatePicker Date="{Binding ToDate}" WidthRequest="140" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8" Margin="0,0,24,0">
+                    <Label Text="Group by:" FontAttributes="Bold" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                    <Picker ItemsSource="{Binding GroupByOptions}" SelectedItem="{Binding SelectedGroupBy}"
+                            WidthRequest="130" TextColor="{StaticResource StashText}"/>
+                </HorizontalStackLayout>
+                <Button Text="Export CSV" Style="{StaticResource SecondaryButton}" Padding="16,8" Margin="0,0,12,0"
+                        Command="{Binding ExportCsvCommand}" IsVisible="{Binding HasResults}"/>
+                <Button Text="Run Report" Style="{StaticResource PrimaryButton}" Padding="16,8"
+                        Command="{Binding RunReportCommand}"/>
+            </FlexLayout>
         </Border>
 
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Rows}" SelectionMode="None" Margin="20,0">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="svc:ReportRow">
-                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="4,10" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
-                            <Label Text="{Binding ItemName}" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource StashText}"/>
-                            <Label Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding QuantityText}" FontSize="13"
-                               TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
-                        <Label Grid.Column="2" Text="{Binding LineTotalText}" FontAttributes="Bold" FontSize="14"
-                               TextColor="{StaticResource StashText}" VerticalOptions="Center" WidthRequest="90"
-                               HorizontalTextAlignment="End"/>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.EmptyView>
-                <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
-                    <Label Text="{Binding EmptyText}" HorizontalTextAlignment="Center"
-                           TextColor="{StaticResource StashTextMuted}"/>
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-        </CollectionView>
+        <!-- Content -->
+        <Grid Grid.Row="2">
 
-        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
-                           VerticalOptions="Center" HorizontalOptions="Center"/>
+            <!-- Results -->
+            <Grid RowDefinitions="Auto,*" IsVisible="{Binding HasResults}">
+                <!-- Summary strip -->
+                <Border Grid.Row="0" BackgroundColor="{StaticResource StashSidebar}"
+                        Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1" Padding="24,12,12,0">
+                    <FlexLayout Wrap="Wrap">
+                        <Border Style="{StaticResource SummaryCard}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding TotalCardLabel}" Style="{StaticResource CardCapLabel}"/>
+                                <Label Text="{Binding TotalCardValue}" Style="{StaticResource CardValue}" TextColor="{Binding AccentColor}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Style="{StaticResource SummaryCard}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding ItemsCardLabel}" Style="{StaticResource CardCapLabel}"/>
+                                <Label Text="{Binding ItemsCardValue}" Style="{StaticResource CardValue}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Style="{StaticResource SummaryCard}">
+                            <VerticalStackLayout>
+                                <Label Text="UNIQUE ITEMS" Style="{StaticResource CardCapLabel}"/>
+                                <Label Text="{Binding UniqueItemsValue}" Style="{StaticResource CardValue}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Style="{StaticResource SummaryCard}">
+                            <VerticalStackLayout>
+                                <Label Text="AVG PER ITEM" Style="{StaticResource CardCapLabel}"/>
+                                <Label Text="{Binding AvgPerItemValue}" Style="{StaticResource CardValue}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </FlexLayout>
+                </Border>
+
+                <!-- Grouped breakdown -->
+                <ScrollView Grid.Row="1">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Groups}" Padding="24,16" Spacing="16">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ReportGroup">
+                                <Border Style="{StaticResource CardStyle}">
+                                    <VerticalStackLayout Spacing="0">
+                                        <!-- Group header -->
+                                        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
+                                            <Label Grid.Column="0" Text="{Binding Header}" FontSize="16" FontAttributes="Bold"
+                                                   TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                                            <Label Grid.Column="1" Text="{Binding CountText}" FontSize="12"
+                                                   TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center" Margin="0,0,16,0"/>
+                                            <Label Grid.Column="2" Text="{Binding TotalText}" FontSize="15" FontAttributes="Bold"
+                                                   TextColor="{Binding BindingContext.AccentColor, Source={x:Reference Root}, x:DataType=ContentView}" VerticalOptions="Center"/>
+                                        </Grid>
+
+                                        <!-- Column headers (BoxView rules — MAUI Border.StrokeThickness is a single double) -->
+                                        <BoxView Color="{StaticResource StashBorder}" HeightRequest="1"/>
+                                        <Grid ColumnDefinitions="*,100,110,80,80,90" Padding="0,6">
+                                            <Label Grid.Column="0" Text="Item" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+                                            <Label Grid.Column="1" Text="Type" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+                                            <Label Grid.Column="2" Text="Date" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
+                                            <Label Grid.Column="3" Text="Qty" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="End"/>
+                                            <Label Grid.Column="4" Text="Each" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="End"/>
+                                            <Label Grid.Column="5" Text="Total" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="End"/>
+                                        </Grid>
+                                        <BoxView Color="{StaticResource StashBorder}" HeightRequest="1"/>
+
+                                        <!-- Rows -->
+                                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Rows}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="svc:ReportRow">
+                                                    <VerticalStackLayout Spacing="0">
+                                                        <Grid ColumnDefinitions="*,100,110,80,80,90" Padding="0,9">
+                                                            <VerticalStackLayout Grid.Column="0" Spacing="0" Margin="0,0,8,0">
+                                                                <Label Text="{Binding ItemName}" FontSize="13" TextColor="{StaticResource StashText}"/>
+                                                                <Label Text="{Binding ItemNumberText}" FontSize="11" TextColor="{StaticResource StashTextMuted}"/>
+                                                            </VerticalStackLayout>
+                                                            <Label Grid.Column="1" Text="{Binding ItemType}" FontSize="12" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                                                            <Label Grid.Column="2" Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource StashTextMuted}" VerticalOptions="Center"/>
+                                                            <Label Grid.Column="3" Text="{Binding QuantityText}" FontSize="12" TextColor="{StaticResource StashText}" HorizontalTextAlignment="End" VerticalOptions="Center"/>
+                                                            <Label Grid.Column="4" Text="{Binding UnitPriceText}" FontSize="12" TextColor="{StaticResource StashText}" HorizontalTextAlignment="End" VerticalOptions="Center"/>
+                                                            <Label Grid.Column="5" Text="{Binding LineTotalText}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="End" VerticalOptions="Center"
+                                                                   TextColor="{Binding BindingContext.AccentColor, Source={x:Reference Root}, x:DataType=ContentView}"/>
+                                                        </Grid>
+                                                        <BoxView Color="{StaticResource StashBorder}" HeightRequest="1"/>
+                                                    </VerticalStackLayout>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+
+            <!-- Empty / status -->
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12" Padding="40"
+                                 IsVisible="{Binding HasResults, Converter={StaticResource InvertedBoolConverter}}">
+                <Label Text="{Binding EmptyEmoji}" FontSize="48" HorizontalOptions="Center"/>
+                <Label Text="{Binding StatusMessage}" FontSize="14" TextColor="{StaticResource StashTextMuted}" HorizontalTextAlignment="Center"/>
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="{StaticResource ErrorRed}"
+                       HorizontalTextAlignment="Center" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"/>
+            </VerticalStackLayout>
+
+            <!-- Loading overlay -->
+            <Grid IsVisible="{Binding Busy}" BackgroundColor="#B3F2EEE6">
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                    <ActivityIndicator IsRunning="{Binding Busy}"/>
+                    <Label Text="Loading..." FontSize="16" TextColor="{StaticResource StashTextMuted}"/>
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
     </Grid>
 </ContentView>
