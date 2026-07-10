@@ -13,7 +13,7 @@
         <Color x:Key="DangerSoft">#F8E0E1</Color>
         <Color x:Key="DangerRed">#A82C32</Color>
         <Style x:Key="AbField" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+            <Setter Property="BackgroundColor" Value="{StaticResource StashInput}"/>
             <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
@@ -47,7 +47,7 @@
             <Grid Grid.Column="0" RowDefinitions="Auto,*" BackgroundColor="{StaticResource StashSidebar}">
                 <Border Grid.Row="0" BackgroundColor="{StaticResource StashCard}" Padding="12,10" Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2">
                             <Entry Placeholder="Search name, city, notes..." Text="{Binding SearchText}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
                         <Button Grid.Column="1" Text="✕" FontSize="11" Padding="8,6" BackgroundColor="{StaticResource StashSidebar}" TextColor="{StaticResource StashText}" CornerRadius="8" Command="{Binding ClearSearchCommand}"/>

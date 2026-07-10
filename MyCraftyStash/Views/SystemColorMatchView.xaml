@@ -34,7 +34,7 @@
                 <Label Text="Hover any row to see what to order. ✓ marks colors already in your stash." FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
                 <Label Text="{Binding SummaryText}" FontSize="12" TextColor="{StaticResource StashPrimary}"/>
             </VerticalStackLayout>
-            <Border Grid.Column="1" BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2" VerticalOptions="Start">
+            <Border Grid.Column="1" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,2" VerticalOptions="Start">
                 <Entry Placeholder="Search color or code..." Text="{Binding SearchText}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
             </Border>
         </Grid>

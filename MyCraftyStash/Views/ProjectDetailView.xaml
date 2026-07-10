@@ -159,7 +159,7 @@
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Record Project Creation" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
                         <Label Text="Notes (optional)" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
                                 StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,6">
                             <Editor Text="{Binding NewCreationNotes}" AutoSize="TextChanges" MinimumHeightRequest="70"
                                     BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>

@@ -65,6 +65,43 @@
             <!-- ── Shared content styles (match the desktop) ── -->
             <Color x:Key="StashSurface">#F6F2EB</Color>
             <Color x:Key="StashBadge">#E0DAC9</Color>
+            <!-- Distinct fill for interactive inputs so they stand out from the
+                 cream page/card background (white, like the desktop's fields). -->
+            <Color x:Key="StashInput">#FFFFFF</Color>
+
+            <!-- Implicit input styles: every Entry/Editor/Picker/DatePicker/
+                 SearchBar gets a white fill + a soft border so they read as
+                 editable, not as page background. Controls that set their own
+                 BackgroundColor locally (e.g. the ones inside a coloured pill)
+                 keep that value. -->
+            <Style TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
+            <Style TargetType="Editor">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
+            <Style TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="TitleColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
+            <Style TargetType="DatePicker">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+            </Style>
+            <Style TargetType="TimePicker">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+            </Style>
+            <Style TargetType="SearchBar">
+                <Setter Property="BackgroundColor" Value="{StaticResource StashInput}" />
+                <Setter Property="TextColor" Value="{StaticResource StashText}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource StashTextMuted}" />
+            </Style>
 
             <!-- Page header: breadcrumb (12 muted) + title (28 bold) + subtitle (13 muted) -->
             <Style x:Key="Breadcrumb" TargetType="Label">

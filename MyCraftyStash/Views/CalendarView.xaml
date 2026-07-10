@@ -155,12 +155,12 @@
                         </Border>
 
                         <Label Text="Title *" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,2">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,2">
                             <Entry Text="{Binding EditTitle}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
 
                         <Label Text="Description" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,4">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,4">
                             <Editor Text="{Binding EditDescription}" AutoSize="TextChanges" MinimumHeightRequest="56" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
 
@@ -175,11 +175,11 @@
                         <VerticalStackLayout Spacing="4" IsVisible="{Binding ShowTimePicker}">
                             <Label Text="Time" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashTextMuted}"/>
                             <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                                <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="6,2" WidthRequest="52">
+                                <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="6,2" WidthRequest="52">
                                     <Entry Text="{Binding EditTimeHour}" Keyboard="Numeric" MaxLength="2" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                                 </Border>
                                 <Label Text=":" FontSize="16" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
-                                <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="6,2" WidthRequest="52">
+                                <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="6,2" WidthRequest="52">
                                     <Entry Text="{Binding EditTimeMinute}" Keyboard="Numeric" MaxLength="2" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                                 </Border>
                                 <Picker ItemsSource="{Binding AmPmOptions}" SelectedItem="{Binding EditTimeAmPm}" WidthRequest="70" TextColor="{StaticResource StashText}"/>

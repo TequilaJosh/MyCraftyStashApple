@@ -331,7 +331,7 @@
                         </Border>
 
                         <Label Text="Sentiment (optional)" Style="{StaticResource FieldLabel}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
                             <Entry Placeholder="Type the sentiment text..." Text="{Binding NewImageSentiment}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
 
@@ -394,12 +394,12 @@
                         <Label Text="{Binding BoardModalTitle}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
 
                         <Label Text="Board Name *" Style="{StaticResource FieldLabel}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
                             <Entry Placeholder="Enter board name..." Text="{Binding NewBoardName}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
 
                         <Label Text="Description (optional)" Style="{StaticResource FieldLabel}"/>
-                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,6">
+                        <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,6">
                             <Editor Placeholder="Enter description..." Text="{Binding NewBoardDescription}" AutoSize="TextChanges" MinimumHeightRequest="70" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                         </Border>
 
@@ -475,7 +475,7 @@
                             </FlexLayout>
 
                             <Label Text="Default Sentiment" Style="{StaticResource FieldLabel}"/>
-                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                            <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
                                 <Entry Placeholder="Enter default sentiment text..." Text="{Binding NewBoardDefaultSentiment}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
                             </Border>
                         </VerticalStackLayout>

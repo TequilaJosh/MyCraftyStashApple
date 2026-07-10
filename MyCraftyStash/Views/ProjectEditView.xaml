@@ -91,7 +91,7 @@
                         <VerticalStackLayout>
                             <Label Text="Project Name *" FontSize="16" FontAttributes="Bold"
                                    TextColor="{StaticResource StashText}" Margin="0,0,0,8"/>
-                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                            <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
                                     StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4"
                                     MinimumHeightRequest="44">
                                 <Entry Text="{Binding Name}" FontSize="13" BackgroundColor="Transparent"
@@ -100,7 +100,7 @@
 
                             <Label Text="Notes" FontSize="16" FontAttributes="Bold"
                                    TextColor="{StaticResource StashText}" Margin="0,16,0,8"/>
-                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                            <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
                                     StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,10">
                                 <Editor Text="{Binding Notes}" FontSize="13" BackgroundColor="Transparent"
                                         TextColor="{StaticResource StashText}" AutoSize="TextChanges"

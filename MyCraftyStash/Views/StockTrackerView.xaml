@@ -16,7 +16,7 @@
         <Style x:Key="EditEntry" TargetType="Entry">
             <Setter Property="WidthRequest" Value="80"/>
             <Setter Property="Keyboard" Value="Numeric"/>
-            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+            <Setter Property="BackgroundColor" Value="{StaticResource StashInput}"/>
             <Setter Property="TextColor" Value="{StaticResource StashText}"/>
         </Style>
         <Style x:Key="MiniPrimary" TargetType="Button">
@@ -95,7 +95,7 @@
             <ScrollView IsVisible="{Binding IsSupplyTab}">
                 <VerticalStackLayout Padding="32,16,32,24" Spacing="12">
                     <!-- Search -->
-                    <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                    <Border BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
                             StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,2" WidthRequest="420"
                             HorizontalOptions="Start">
                         <Entry Placeholder="Search supplies..." Text="{Binding SearchText}"
@@ -206,7 +206,7 @@
             <ScrollView IsVisible="{Binding IsProjectsTab}">
                 <VerticalStackLayout Padding="32,16,32,24" Spacing="12">
                     <Grid ColumnDefinitions="*,Auto">
-                        <Border Grid.Column="0" BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                        <Border Grid.Column="0" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
                                 StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,2" WidthRequest="420" HorizontalOptions="Start">
                             <Entry Placeholder="Search projects..." Text="{Binding ProjectSearchText}"
                                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
