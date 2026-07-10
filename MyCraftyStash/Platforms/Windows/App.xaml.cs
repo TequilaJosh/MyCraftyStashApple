@@ -17,16 +17,21 @@ public partial class App : MauiWinUIApplication
 	public App()
 	{
 		this.InitializeComponent();
-		this.UnhandledException += (s, e) =>
+		this.UnhandledException += (s, e) => LogCrash("XamlUnhandled", e.Message + "\n\n" + e.Exception);
+		System.AppDomain.CurrentDomain.UnhandledException += (s, e) => LogCrash("AppDomain", e.ExceptionObject?.ToString() ?? "?");
+		System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, e) => LogCrash("UnobservedTask", e.Exception.ToString());
+	}
+
+	private static void LogCrash(string source, string detail)
+	{
+		try
 		{
-			try
-			{
-				var path = System.IO.Path.Combine(
-					Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "crash.txt");
-				System.IO.File.WriteAllText(path, e.Message + "\n\n" + e.Exception);
-			}
-			catch { }
-		};
+			var path = System.IO.Path.Combine(
+				Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "crash.txt");
+			System.IO.File.AppendAllText(path,
+				$"\n===== {System.DateTime.Now:O} [{source}] =====\n{detail}\n");
+		}
+		catch { }
 	}
 
 	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

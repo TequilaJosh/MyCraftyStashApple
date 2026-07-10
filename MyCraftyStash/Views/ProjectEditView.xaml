@@ -3,47 +3,206 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MyCraftyStash.ViewModels"
+             x:Name="Root"
              x:DataType="vm:ProjectEditViewModel">
 
-    <Grid RowDefinitions="Auto,*">
+    <!-- Desktop clone: header / scrolling 3-or-5-column body / sticky footer -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="20,16" ColumnSpacing="10">
-            <Button Grid.Column="0" Text="‹ Back" Command="{Binding CancelCommand}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
-            <Label Grid.Column="1" Text="{Binding PageTitle}" FontSize="22" FontAttributes="Bold"
-                   TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+        <!-- Header: title, bottom hairline (desktop: Padding 24,16, FontSize 24 Bold) -->
+        <Grid Grid.Row="0" RowDefinitions="*,1" BackgroundColor="{StaticResource StashBackground}">
+            <Label Text="{Binding PageTitle}" FontSize="24" FontAttributes="Bold"
+                   TextColor="{StaticResource StashText}" Margin="24,16"/>
+            <BoxView Grid.Row="1" Color="{StaticResource StashBorder}" HeightRequest="1"/>
         </Grid>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="12" Padding="20,0,20,20" MaximumWidthRequest="620">
+        <!-- Body -->
+        <ScrollView Grid.Row="1" Padding="24">
+            <Grid ColumnDefinitions="320,20,*,20,Auto">
 
-                <Label Text="{Binding ErrorMessage}"
-                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
-                       TextColor="{StaticResource ErrorRed}"/>
+                <!-- ── LEFT (320): Images card + Card Builder ── -->
+                <VerticalStackLayout Grid.Column="0" VerticalOptions="Start">
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout>
+                            <Label Text="Images" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{StaticResource StashText}" Margin="0,0,0,8"/>
 
-                <Label Text="Name *" TextColor="{StaticResource StashText}"/>
-                <Entry Text="{Binding Name}" Placeholder="e.g. Birthday card for Mum"/>
+                            <!-- Drop zone / thumbnails -->
+                            <Border BackgroundColor="{StaticResource StashSidebar}"
+                                    Stroke="{StaticResource StashBorder}" StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 8" MinimumHeightRequest="220" Padding="8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AddImagesCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Grid>
+                                    <!-- Empty state -->
+                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center"
+                                                         IsVisible="{Binding HasImages, Converter={StaticResource InvertedBoolConverter}}">
+                                        <Label Text="Drop photo or click" FontSize="14" FontAttributes="Bold"
+                                               TextColor="{StaticResource StashText}" HorizontalOptions="Center"/>
+                                        <Label Text="(drag &amp; drop also works)" FontSize="11"
+                                               TextColor="{StaticResource StashTextMuted}" HorizontalOptions="Center" Margin="0,6,0,0"/>
+                                    </VerticalStackLayout>
 
-                <Label Text="Description" TextColor="{StaticResource StashText}"/>
-                <Editor Text="{Binding Description}" AutoSize="TextChanges" MinimumHeightRequest="70"/>
+                                    <!-- Thumbnails -->
+                                    <VerticalStackLayout IsVisible="{Binding HasImages}">
+                                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Images}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Grid Margin="4">
+                                                        <Border WidthRequest="80" HeightRequest="80"
+                                                                StrokeShape="RoundRectangle 6" StrokeThickness="0"
+                                                                BackgroundColor="{StaticResource StashCard}">
+                                                            <Image Source="{Binding ., Converter={StaticResource ImageStringConverter}}"
+                                                                   Aspect="AspectFit"/>
+                                                        </Border>
+                                                        <Button Text="✕" FontSize="10" WidthRequest="20" HeightRequest="20"
+                                                                Padding="0" CornerRadius="10"
+                                                                BackgroundColor="{StaticResource StashPrimary}" TextColor="White"
+                                                                HorizontalOptions="End" VerticalOptions="Start" Margin="0,-4,-4,0"
+                                                                Command="{Binding BindingContext.RemoveImageCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                CommandParameter="{Binding .}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </FlexLayout>
+                                        <Label Text="Click to add more" FontSize="11"
+                                               TextColor="{StaticResource StashPrimary}" Margin="4,6,0,0"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
 
-                <Label Text="Technique" TextColor="{StaticResource StashText}"/>
-                <Entry Text="{Binding Technique}" Placeholder="e.g. Watercolor, Die-cutting"/>
+                    <!-- Oversized primary "start crafting" action, desktop parity -->
+                    <Button Text="Card Builder" Style="{StaticResource PrimaryButton}"
+                            Padding="20,14" FontSize="16" Margin="0,12,0,0"
+                            HorizontalOptions="Fill"
+                            Command="{Binding OpenCardBuilderCommand}"/>
+                </VerticalStackLayout>
 
-                <Label Text="Notes" TextColor="{StaticResource StashText}"/>
-                <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="90"/>
+                <!-- ── MIDDLE (*): form fields + build summaries ── -->
+                <VerticalStackLayout Grid.Column="2" VerticalOptions="Start">
+                    <Label Text="{Binding ErrorMessage}"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                           TextColor="{StaticResource ErrorRed}" Margin="0,0,0,8"/>
 
-                <Label Text="Tip: linking the supplies you used comes in a later update."
-                       FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout>
+                            <Label Text="Project Name *" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{StaticResource StashText}" Margin="0,0,0,8"/>
+                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                                    StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4"
+                                    MinimumHeightRequest="44">
+                                <Entry Text="{Binding Name}" FontSize="13" BackgroundColor="Transparent"
+                                       TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                            </Border>
 
-                <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
-                    <Button Text="Save" Command="{Binding SaveCommand}"
-                            BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-                    <Button Text="Cancel" Command="{Binding CancelCommand}"
-                            BackgroundColor="Transparent" TextColor="{StaticResource StashTextMuted}"/>
-                </HorizontalStackLayout>
+                            <Label Text="Notes" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{StaticResource StashText}" Margin="0,16,0,8"/>
+                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                                    StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,10">
+                                <Editor Text="{Binding Notes}" FontSize="13" BackgroundColor="Transparent"
+                                        TextColor="{StaticResource StashText}" AutoSize="TextChanges"
+                                        MinimumHeightRequest="120"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
 
-            </VerticalStackLayout>
+                    <!-- Pending card build (saves with the project) -->
+                    <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource StashSidebar}"
+                            Margin="0,16,0,0" IsVisible="{Binding HasPendingCardBuild}">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Card build ready — items will be added when you save"
+                                   FontSize="12" FontAttributes="Bold" TextColor="{StaticResource StashPrimary}"
+                                   Margin="0,0,0,4"/>
+                            <VerticalStackLayout Spacing="3" BindableLayout.ItemsSource="{Binding PendingBuildStepList}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BuildSummaryLine">
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsInside}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+                                                    <Setter Property="Margin" Value="16,0,0,3"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Saved card build (edit mode, no pending changes) -->
+                    <Border Style="{StaticResource CardStyle}" Margin="0,16,0,0">
+                        <Border.IsVisible>
+                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                <Binding Path="HasSavedCardBuild"/>
+                                <Binding Path="HasPendingCardBuild" Converter="{StaticResource InvertedBoolConverter}"/>
+                            </MultiBinding>
+                        </Border.IsVisible>
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Card build (saved)" FontSize="12" FontAttributes="Bold"
+                                   TextColor="{StaticResource StashTextMuted}" Margin="0,0,0,4"/>
+                            <VerticalStackLayout Spacing="3" BindableLayout.ItemsSource="{Binding SavedBuildStepList}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BuildSummaryLine">
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsInside}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashTextMuted}"/>
+                                                    <Setter Property="Margin" Value="16,0,0,3"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ── RIGHT (260, edit only): read-only Items Used ── -->
+                <VerticalStackLayout Grid.Column="4" WidthRequest="260" VerticalOptions="Start"
+                                     IsVisible="{Binding IsEditing}">
+                    <Label Text="Items Used" FontSize="16" FontAttributes="Bold"
+                           TextColor="{StaticResource StashText}"/>
+                    <Label Text="Edit via the Card Builder." FontSize="11"
+                           TextColor="{StaticResource StashTextMuted}" Margin="0,2,0,8"/>
+
+                    <Label Text="No items yet" FontSize="12" TextColor="{StaticResource StashTextMuted}"
+                           HorizontalOptions="Center" Margin="0,20,0,0"
+                           IsVisible="{Binding HasItemsUsed, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                    <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding ItemsUsed}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:UsedItemRow">
+                                <Border BackgroundColor="{StaticResource StashSidebar}" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 6" Padding="6">
+                                    <Grid ColumnDefinitions="40,*" ColumnSpacing="6">
+                                        <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 4" BackgroundColor="{StaticResource StashCard}">
+                                            <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                                                   Aspect="AspectFill"/>
+                                        </Border>
+                                        <Label Grid.Column="1" Text="{Binding Name}" FontSize="11" FontAttributes="Bold"
+                                               TextColor="{StaticResource StashText}" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
         </ScrollView>
+
+        <!-- Sticky footer: Cancel + Save, right-aligned, top hairline -->
+        <Grid Grid.Row="2" RowDefinitions="1,*" BackgroundColor="{StaticResource StashBackground}">
+            <BoxView Grid.Row="0" Color="{StaticResource StashBorder}" HeightRequest="1"/>
+            <HorizontalStackLayout Grid.Row="1" HorizontalOptions="End" Spacing="12" Margin="24,12">
+                <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelCommand}"/>
+                <Button Text="{Binding SaveButtonText}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
+            </HorizontalStackLayout>
+        </Grid>
     </Grid>
 </ContentView>

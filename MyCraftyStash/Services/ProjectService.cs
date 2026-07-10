@@ -96,6 +96,46 @@ public class ProjectService
         }
     }
 
+    /// <summary>Adds any of the given items not already linked, preserving order
+    /// (desktop parity: wizard item ids merge into the project, no removals).</summary>
+    public async Task MergeItemsIntoProjectAsync(int projectId, IEnumerable<int> itemIds)
+    {
+        using var db = new InventoryDbContext();
+        var linked = await db.ProjectItems.Where(pi => pi.ProjectId == projectId)
+            .Select(pi => pi.ItemId).ToListAsync();
+        int nextOrder = await db.ProjectItems.Where(pi => pi.ProjectId == projectId)
+            .Select(pi => (int?)pi.SortOrder).MaxAsync() ?? 0;
+        foreach (var id in itemIds)
+        {
+            if (linked.Contains(id)) continue;
+            linked.Add(id);
+            db.ProjectItems.Add(new ProjectItem { ProjectId = projectId, ItemId = id, SortOrder = ++nextOrder });
+        }
+        await db.SaveChangesAsync();
+    }
+
+    // ── Extra images (project_images; primary image lives in Project.ImageUrl) ──
+
+    public async Task<List<ProjectImage>> GetProjectImagesAsync(int projectId)
+    {
+        using var db = new InventoryDbContext();
+        return await db.ProjectImages.AsNoTracking()
+            .Where(pi => pi.ProjectId == projectId)
+            .OrderBy(pi => pi.SortOrder).ToListAsync();
+    }
+
+    /// <summary>Replaces all extra images (desktop parity: clear then re-add on save).</summary>
+    public async Task ReplaceProjectImagesAsync(int projectId, IEnumerable<string> imageUrls)
+    {
+        using var db = new InventoryDbContext();
+        var old = db.ProjectImages.Where(pi => pi.ProjectId == projectId);
+        db.ProjectImages.RemoveRange(old);
+        int order = 1;
+        foreach (var url in imageUrls)
+            db.ProjectImages.Add(new ProjectImage { ProjectId = projectId, ImageUrl = url, SortOrder = order++ });
+        await db.SaveChangesAsync();
+    }
+
     /// <summary>Inventory items not yet linked to this project, optionally filtered.</summary>
     public async Task<List<Item>> GetLinkableItemsAsync(int projectId, string? search = null)
     {
