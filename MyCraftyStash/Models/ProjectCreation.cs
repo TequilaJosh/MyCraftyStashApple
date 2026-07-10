@@ -22,5 +22,11 @@ namespace MyCraftyStash.Models
 
         [ForeignKey(nameof(ProjectId))]
         public virtual Project? Project { get; set; }
+
+        // ── Display helpers (Stock Tracker / project detail) ──
+        [NotMapped] public string CreatedOnText => CreatedOn.ToString("MMMM d, yyyy h:mm tt");
+        [NotMapped] public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
+        [NotMapped] public bool HasMaterials => !string.IsNullOrWhiteSpace(MaterialsUsed);
+        [NotMapped] public string MaterialsText => string.IsNullOrWhiteSpace(MaterialsUsed) ? "" : $"Reduced: {MaterialsUsed}";
     }
 }

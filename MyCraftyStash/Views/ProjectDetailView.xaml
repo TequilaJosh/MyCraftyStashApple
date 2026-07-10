@@ -9,29 +9,66 @@
 
     <Grid RowDefinitions="Auto,*">
 
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Padding="20,16" ColumnSpacing="10">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto" Padding="20,16" ColumnSpacing="10">
             <Button Grid.Column="0" Text="‹ Back" Command="{Binding BackCommand}"
                     BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
             <Label Grid.Column="1" Text="{Binding Project.Name}" FontSize="22" FontAttributes="Bold"
                    TextColor="{StaticResource StashText}" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
-            <Button Grid.Column="2" Text="Edit" Command="{Binding EditCommand}"
+            <Button Grid.Column="2" Text="✔ I Made One!" Command="{Binding StartAddCreationCommand}"
+                    BackgroundColor="{StaticResource StashPrimary}" TextColor="White"
+                    IsVisible="{Binding IsAddingCreation, Converter={StaticResource InvertedBoolConverter}}"/>
+            <Button Grid.Column="3" Text="Edit" Command="{Binding EditCommand}"
                     BackgroundColor="{StaticResource StashPrimary}" TextColor="White"/>
-            <Button Grid.Column="3" Text="Delete" Command="{Binding DeleteCommand}"
+            <Button Grid.Column="4" Text="Delete" Command="{Binding DeleteCommand}"
                     BackgroundColor="{StaticResource ErrorRed}" TextColor="White"/>
         </Grid>
 
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Spacing="18" Padding="20" MaximumWidthRequest="760">
 
-                <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White"
-                        IsVisible="{Binding Project.ImageUrl, Converter={StaticResource IsNotNullConverter}}">
-                    <Image Source="{Binding Project.ImageUrl, Converter={StaticResource ImageStringConverter}}"
-                           Aspect="AspectFit" MaximumHeightRequest="360"/>
-                </Border>
+                <!-- Image gallery -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding CurrentImage, Converter={StaticResource IsNotNullConverter}}">
+                    <Grid>
+                        <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource StashSidebar}" HeightRequest="360">
+                            <Image Source="{Binding CurrentImage, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"/>
+                        </Border>
+                        <Button Text="‹" FontSize="22" WidthRequest="36" HeightRequest="36" Padding="0" CornerRadius="18"
+                                BackgroundColor="{StaticResource StashSurface}" TextColor="{StaticResource StashText}"
+                                HorizontalOptions="Start" VerticalOptions="Center" Margin="8,0,0,0"
+                                IsVisible="{Binding HasMultipleImages}" Command="{Binding PreviousImageCommand}"/>
+                        <Button Text="›" FontSize="22" WidthRequest="36" HeightRequest="36" Padding="0" CornerRadius="18"
+                                BackgroundColor="{StaticResource StashSurface}" TextColor="{StaticResource StashText}"
+                                HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,8,0"
+                                IsVisible="{Binding HasMultipleImages}" Command="{Binding NextImageCommand}"/>
+                    </Grid>
+                    <!-- Thumbnail strip -->
+                    <ScrollView Orientation="Horizontal" IsVisible="{Binding HasMultipleImages}" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding Thumbnails}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                                            BackgroundColor="{StaticResource StashSidebar}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SelectImageCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Image Source="{Binding ., Converter={StaticResource ImageStringConverter}}" Aspect="AspectFill"/>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </VerticalStackLayout>
 
                 <VerticalStackLayout Spacing="4" IsVisible="{Binding Project.Description, Converter={StaticResource IsNotNullConverter}}">
                     <Label Text="Description" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource StashText}"/>
                     <Label Text="{Binding Project.Description}" TextColor="{StaticResource StashText}"/>
+                </VerticalStackLayout>
+
+                <!-- Date Created -->
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Date Created" FontAttributes="Bold" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
+                    <Label Text="{Binding DateCreatedText}" FontSize="14" TextColor="{StaticResource StashText}"/>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Spacing="4" IsVisible="{Binding Project.Technique, Converter={StaticResource IsNotNullConverter}}">
@@ -112,6 +149,61 @@
                                         </Style>
                                     </Label.Style>
                                 </Label>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- I Made One! creation form -->
+                <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsAddingCreation}" Margin="0,8,0,0">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Record Project Creation" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                        <Label Text="Notes (optional)" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}"
+                                StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,6">
+                            <Editor Text="{Binding NewCreationNotes}" AutoSize="TextChanges" MinimumHeightRequest="70"
+                                    BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+                        <HorizontalStackLayout Spacing="8">
+                            <CheckBox IsChecked="{Binding SubtractMaterials}"/>
+                            <VerticalStackLayout VerticalOptions="Center">
+                                <Label Text="Subtract materials from inventory" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                <Label Text="Reduces stock for cardstock, envelopes, foils, etc." FontSize="11" TextColor="{StaticResource StashTextMuted}"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
+                            <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelAddCreationCommand}"/>
+                            <Button Text="Save Creation" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCreationCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Creation History -->
+                <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
+                    <Label Text="Creation History" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource StashText}"/>
+                    <Label Text="No creations recorded yet." FontSize="12" TextColor="{StaticResource StashTextMuted}"
+                           IsVisible="{Binding HasCreations, Converter={StaticResource InvertedBoolConverter}}"/>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Creations}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProjectCreation">
+                                <Border BackgroundColor="{StaticResource StashSidebar}" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="12">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" BackgroundColor="{StaticResource StashPrimary}" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 4" Padding="8,4" VerticalOptions="Start">
+                                            <Label Text="✔ Made" FontSize="12" FontAttributes="Bold" TextColor="White"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding CreatedOnText}" FontSize="13" TextColor="{StaticResource StashText}"/>
+                                            <Label Text="{Binding Notes}" FontSize="11" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding HasNotes}"/>
+                                            <Label Text="{Binding MaterialsText}" FontSize="11" TextColor="{StaticResource StashTextMuted}" IsVisible="{Binding HasMaterials}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="✕" FontSize="16" VerticalOptions="Start" TextColor="{StaticResource ErrorRed}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.DeleteCreationCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>

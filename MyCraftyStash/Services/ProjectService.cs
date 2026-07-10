@@ -136,6 +136,58 @@ public class ProjectService
         await db.SaveChangesAsync();
     }
 
+    // ── Creations ("I Made One!" tracking) ───────────────────────────────────
+
+    public async Task<List<ProjectCreation>> GetCreationsAsync(int projectId)
+    {
+        using var db = new InventoryDbContext();
+        return await db.ProjectCreations.AsNoTracking()
+            .Where(c => c.ProjectId == projectId)
+            .OrderByDescending(c => c.CreatedOn)
+            .ToListAsync();
+    }
+
+    public async Task<int> AddCreationAsync(ProjectCreation creation)
+    {
+        using var db = new InventoryDbContext();
+        creation.CreatedOn = DateTime.Now;
+        db.ProjectCreations.Add(creation);
+        await db.SaveChangesAsync();
+        return creation.Id;
+    }
+
+    public async Task DeleteCreationAsync(int creationId)
+    {
+        using var db = new InventoryDbContext();
+        var c = await db.ProjectCreations.FindAsync(creationId);
+        if (c is null) return;
+        db.ProjectCreations.Remove(c);
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>Decrements stock for the consumable (tracked-type) items linked to
+    /// a project when a creation is logged with "subtract materials". Returns a
+    /// human-readable summary of what was reduced (also stored on the creation).</summary>
+    public async Task<string> SubtractMaterialsForProjectAsync(int projectId)
+    {
+        using var db = new InventoryDbContext();
+        var linkedIds = await db.ProjectItems.Where(pi => pi.ProjectId == projectId)
+            .Select(pi => pi.ItemId).ToListAsync();
+        if (linkedIds.Count == 0) return "";
+
+        var items = await db.Items.Where(i => linkedIds.Contains(i.Id)).ToListAsync();
+        var reduced = new List<string>();
+        foreach (var item in items)
+        {
+            if (!InventoryService.IsTrackedType(item.Type)) continue;
+            if (item.CurrentStock is not int stock || stock <= 0) continue;
+            item.CurrentStock = stock - 1;
+            reduced.Add($"{item.Name} ({stock} → {stock - 1})");
+        }
+        if (reduced.Count > 0) await db.SaveChangesAsync();
+        return string.Join(", ", reduced);
+    }
+
     /// <summary>Inventory items not yet linked to this project, optionally filtered.</summary>
     public async Task<List<Item>> GetLinkableItemsAsync(int projectId, string? search = null)
     {

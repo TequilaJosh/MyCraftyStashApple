@@ -24,11 +24,26 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
     [ObservableProperty] public partial Project? Project { get; set; }
     public ObservableCollection<Item> ItemsUsed { get; } = new();
     [ObservableProperty] public partial bool HasItemsUsed { get; set; }
+    [ObservableProperty] public partial string? DateCreatedText { get; set; }
+
+    // Multi-image gallery (cover at index 0, then extra project_images)
+    private readonly List<string> _galleryImages = new();
+    public ObservableCollection<string> Thumbnails { get; } = new();
+    [ObservableProperty] public partial string? CurrentImage { get; set; }
+    [ObservableProperty] public partial bool HasMultipleImages { get; set; }
+    private int _imageIndex;
 
     // Card build ("How it was made")
     public ObservableCollection<ProjectCardBuildStep> CardSteps { get; } = new();
     [ObservableProperty] public partial bool HasCardBuild { get; set; }
     [ObservableProperty] public partial string BuildCardButtonText { get; set; } = "Build the card";
+
+    // Creations ("I Made One!")
+    public ObservableCollection<ProjectCreation> Creations { get; } = new();
+    [ObservableProperty] public partial bool HasCreations { get; set; }
+    [ObservableProperty] public partial bool IsAddingCreation { get; set; }
+    [ObservableProperty] public partial string? NewCreationNotes { get; set; }
+    [ObservableProperty] public partial bool SubtractMaterials { get; set; } = true;
 
     public async void Init(int id)
     {
@@ -48,6 +63,19 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
                     ItemsUsed.Add(pi.Item);
         }
         HasItemsUsed = ItemsUsed.Count > 0;
+        DateCreatedText = Project?.CreatedAt.ToString("MMMM d, yyyy");
+
+        // Image gallery: cover (if any) then extra images
+        _galleryImages.Clear();
+        if (Project is not null && !string.IsNullOrEmpty(Project.ImageUrl))
+            _galleryImages.Add(Project.ImageUrl);
+        foreach (var img in await _service.GetProjectImagesAsync(_id))
+            _galleryImages.Add(img.ImageUrl);
+        Thumbnails.Clear();
+        foreach (var g in _galleryImages) Thumbnails.Add(g);
+        HasMultipleImages = _galleryImages.Count > 1;
+        _imageIndex = 0;
+        CurrentImage = _galleryImages.FirstOrDefault();
 
         // Card build summary
         CardSteps.Clear();
@@ -57,6 +85,83 @@ public partial class ProjectDetailViewModel : ObservableObject, IRefreshOnReturn
                 CardSteps.Add(s);
         HasCardBuild = CardSteps.Count > 0;
         BuildCardButtonText = HasCardBuild ? "Edit the build" : "Build the card";
+
+        // Creations
+        Creations.Clear();
+        foreach (var c in await _service.GetCreationsAsync(_id))
+            Creations.Add(c);
+        HasCreations = Creations.Count > 0;
+    }
+
+    // ── Gallery navigation ────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void PreviousImage()
+    {
+        if (_galleryImages.Count <= 1) return;
+        _imageIndex = (_imageIndex - 1 + _galleryImages.Count) % _galleryImages.Count;
+        CurrentImage = _galleryImages[_imageIndex];
+    }
+
+    [RelayCommand]
+    private void NextImage()
+    {
+        if (_galleryImages.Count <= 1) return;
+        _imageIndex = (_imageIndex + 1) % _galleryImages.Count;
+        CurrentImage = _galleryImages[_imageIndex];
+    }
+
+    [RelayCommand]
+    private void SelectImage(string image)
+    {
+        int idx = _galleryImages.IndexOf(image);
+        if (idx < 0) return;
+        _imageIndex = idx;
+        CurrentImage = image;
+    }
+
+    // ── Creations ("I Made One!") ─────────────────────────────────────────────
+
+    [RelayCommand]
+    private void StartAddCreation()
+    {
+        NewCreationNotes = null;
+        SubtractMaterials = true;
+        IsAddingCreation = true;
+    }
+
+    [RelayCommand]
+    private void CancelAddCreation() => IsAddingCreation = false;
+
+    [RelayCommand]
+    private async Task SaveCreation()
+    {
+        if (Project is null) return;
+
+        string? materials = null;
+        if (SubtractMaterials)
+        {
+            var summary = await _service.SubtractMaterialsForProjectAsync(Project.Id);
+            materials = string.IsNullOrEmpty(summary) ? null : summary;
+        }
+
+        await _service.AddCreationAsync(new ProjectCreation
+        {
+            ProjectId = Project.Id,
+            Notes = string.IsNullOrWhiteSpace(NewCreationNotes) ? null : NewCreationNotes.Trim(),
+            MaterialsUsed = materials,
+        });
+
+        IsAddingCreation = false;
+        await Refresh();
+    }
+
+    [RelayCommand]
+    private async Task DeleteCreation(ProjectCreation creation)
+    {
+        await _service.DeleteCreationAsync(creation.Id);
+        Creations.Remove(creation);
+        HasCreations = Creations.Count > 0;
     }
 
     [RelayCommand]
