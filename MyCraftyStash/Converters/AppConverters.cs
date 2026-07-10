@@ -2,11 +2,15 @@ using System.Globalization;
 
 namespace MyCraftyStash.Converters;
 
-/// <summary>True when the value is non-null (and, for strings, non-empty).</summary>
+/// <summary>True when the value is non-null (and, for strings, non-empty).
+/// Pass ConverterParameter "invert" to flip (true when null/empty).</summary>
 public class IsNotNullConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        value is string s ? !string.IsNullOrEmpty(s) : value is not null;
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool present = value is string s ? !string.IsNullOrEmpty(s) : value is not null;
+        return string.Equals(parameter as string, "invert", StringComparison.OrdinalIgnoreCase) ? !present : present;
+    }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();

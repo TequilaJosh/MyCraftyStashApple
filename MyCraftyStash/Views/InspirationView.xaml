@@ -7,50 +7,591 @@
              x:Name="Root"
              x:DataType="vm:InspirationViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <ContentView.Resources>
+        <!-- Multi-select picker chip -->
+        <Style x:Key="PickChip" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource StashBorder}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+        </Style>
+        <Style x:Key="DropdownBtn" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{StaticResource StashSurface}"/>
+            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+            <Setter Property="BorderColor" Value="{StaticResource StashBorder}"/>
+            <Setter Property="BorderWidth" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalOptions" Value="Fill"/>
+        </Style>
+    </ContentView.Resources>
 
-        <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
-            <Label Text="My Crafty Stash  /  Inspiration" Style="{StaticResource Breadcrumb}"/>
-            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
-                <Label Text="Inspiration" Style="{StaticResource PageTitle}"/>
-                <Button Grid.Column="1" Text="+ Add Photo" Command="{Binding AddImageCommand}"
-                        Style="{StaticResource PrimaryButton}" VerticalOptions="Center"/>
+    <Grid>
+        <!-- ═══════════ MAIN (boards + gallery) ═══════════ -->
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" IsVisible="{Binding IsAddingImage, Converter={StaticResource InvertedBoolConverter}}">
+
+            <!-- Header -->
+            <VerticalStackLayout Grid.Row="0" Padding="32,22,32,14" Spacing="0">
+                <Label Text="My Crafty Stash  /  Inspiration" Style="{StaticResource Breadcrumb}"/>
+                <Label Text="Inspiration board" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+                <Label Text="Browse your inspiration boards and references." Style="{StaticResource PageSubtitle}"/>
+            </VerticalStackLayout>
+
+            <!-- Search + actions -->
+            <Grid Grid.Row="1" Padding="32,4,32,12" ColumnDefinitions="*,10,Auto,10,Auto,20,Auto"
+                  ColumnSpacing="0">
+                <Border Grid.Column="0" Style="{StaticResource PickChip}" Margin="0" Padding="12,0">
+                    <Entry Placeholder="Search by title..." Text="{Binding SearchText}"
+                           BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                </Border>
+                <Picker Grid.Column="2" Title="All Types" ItemsSource="{Binding TypeOptions}"
+                        SelectedItem="{Binding FilterType}" WidthRequest="140"
+                        TextColor="{StaticResource StashText}"/>
+                <Picker Grid.Column="4" Title="All Themes" ItemsSource="{Binding ThemeOptions}"
+                        SelectedItem="{Binding FilterTheme}" WidthRequest="140"
+                        TextColor="{StaticResource StashText}"/>
+                <HorizontalStackLayout Grid.Column="6" Spacing="8">
+                    <Button Text="Organize" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ToggleOrganizingCommand}"
+                            IsVisible="{Binding IsOrganizing, Converter={StaticResource InvertedBoolConverter}}"/>
+                    <Button Text="Done" Style="{StaticResource PrimaryButton}"
+                            Command="{Binding ToggleOrganizingCommand}"
+                            IsVisible="{Binding IsOrganizing}"/>
+                    <Button Text="+ New Board" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding StartCreateBoardCommand}"
+                            IsVisible="{Binding IsOrganizing, Converter={StaticResource InvertedBoolConverter}}"/>
+                    <Button Text="+ Add Image" Style="{StaticResource PrimaryButton}"
+                            Command="{Binding StartAddImageCommand}"
+                            IsVisible="{Binding IsOrganizing, Converter={StaticResource InvertedBoolConverter}}"/>
+                </HorizontalStackLayout>
             </Grid>
-            <Label Text="Save pictures that spark your next make." Style="{StaticResource PageSubtitle}"/>
-        </VerticalStackLayout>
 
-        <Label Grid.Row="1" Text="{Binding Error}" IsVisible="{Binding Error, Converter={StaticResource IsNotNullConverter}}"
-               TextColor="{StaticResource ErrorRed}" Margin="24,0,24,6"/>
+            <!-- Breadcrumb bar -->
+            <Border Grid.Row="2" BackgroundColor="{StaticResource StashCard}" Padding="24,10"
+                    Stroke="{StaticResource StashBorder}" StrokeThickness="0,0,0,1"
+                    IsVisible="{Binding ShowBreadcrumb}">
+                <FlexLayout BindableLayout.ItemsSource="{Binding Breadcrumb}" Wrap="Wrap" AlignItems="Center">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BreadcrumbEntry">
+                            <HorizontalStackLayout>
+                                <Label Text="  ›  " FontSize="16" TextColor="{StaticResource StashTextMuted}"
+                                       IsVisible="{Binding ShowSeparator}" VerticalOptions="Center"/>
+                                <Label Text="{Binding Name}" FontSize="13" VerticalOptions="Center"
+                                       TextColor="{StaticResource StashPrimary}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsLast}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource StashText}"/>
+                                            <Setter Property="FontAttributes" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.NavigateBreadcrumbCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+            </Border>
 
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Images}" SelectionMode="None" Margin="16,0">
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="3"
-                                 HorizontalItemSpacing="12" VerticalItemSpacing="12"/>
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:InspirationImage">
-                    <Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
-                            BackgroundColor="{StaticResource StashCard}" Padding="6">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding BindingContext.OpenImageCommand, Source={x:Reference Root}, x:DataType=ContentView}"
-                                                  CommandParameter="{Binding .}"/>
-                        </Border.GestureRecognizers>
-                        <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
-                               Aspect="AspectFill" HeightRequest="160"/>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.EmptyView>
-                <VerticalStackLayout Spacing="10" VerticalOptions="Center" Padding="40">
-                    <Label Text="No inspiration yet" FontSize="20" FontAttributes="Bold"
-                           HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
-                    <Label Text="Tap Add Photo to save a picture that inspires your next make."
-                           HorizontalTextAlignment="Center" TextColor="{StaticResource StashTextMuted}"/>
+            <!-- Organize action bar -->
+            <Border Grid.Row="3" BackgroundColor="{StaticResource StashSidebar}" Padding="24,10"
+                    IsVisible="{Binding IsOrganizing}">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+                    <Label Grid.Column="0" Text="{Binding OrgSelectedLabel}" VerticalOptions="Center"
+                           FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" Margin="16,0,0,0">
+                        <Button Text="Select All" Style="{StaticResource SecondaryButton}" Command="{Binding SelectAllOrgCommand}"/>
+                        <Button Text="Clear" Style="{StaticResource SecondaryButton}" Command="{Binding ClearOrgCommand}"/>
+                    </HorizontalStackLayout>
+                    <Picker Grid.Column="3" Title="Move selected to:" WidthRequest="180"
+                            ItemsSource="{Binding OrgMoveTargets}" ItemDisplayBinding="{Binding Label}"
+                            SelectedItem="{Binding OrgMoveTarget}" TextColor="{StaticResource StashText}"/>
+                    <Button Grid.Column="4" Text="Move" Style="{StaticResource PrimaryButton}"
+                            Margin="8,0,0,0" Command="{Binding BulkMoveCommand}"/>
+                </Grid>
+            </Border>
+
+            <ScrollView Grid.Row="4">
+                <VerticalStackLayout Padding="24,16,24,24" Spacing="16">
+
+                    <!-- Board cards -->
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Boards}" Wrap="Wrap"
+                                IsVisible="{Binding HasBoards}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:BoardCard">
+                                <Border WidthRequest="160" HeightRequest="180" Margin="0,0,12,12"
+                                        StrokeShape="RoundRectangle 8" Stroke="{StaticResource StashBorder}"
+                                        StrokeThickness="1" BackgroundColor="{StaticResource StashSidebar}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenBoardCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid>
+                                        <Image Source="{Binding CoverImageUrl, Converter={StaticResource ImageStringConverter}}"
+                                               Aspect="AspectFill"/>
+                                        <!-- AUTO badge -->
+                                        <Border IsVisible="{Binding HasDefaults}" BackgroundColor="{StaticResource StashPrimary}"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 3" Padding="4,1"
+                                                HorizontalOptions="Start" VerticalOptions="Start" Margin="6">
+                                            <Label Text="AUTO" FontSize="8" FontAttributes="Bold" TextColor="White"/>
+                                        </Border>
+                                        <!-- Edit/Delete -->
+                                        <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Start" Margin="4" Spacing="4">
+                                            <Button Text="✎" FontSize="12" WidthRequest="26" HeightRequest="26" Padding="0"
+                                                    CornerRadius="13" BackgroundColor="{StaticResource StashSurface}"
+                                                    TextColor="{StaticResource StashText}"
+                                                    Command="{Binding BindingContext.StartEditBoardCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                    CommandParameter="{Binding .}"/>
+                                            <Button Text="✕" FontSize="12" WidthRequest="26" HeightRequest="26" Padding="0"
+                                                    CornerRadius="13" BackgroundColor="{StaticResource StashPrimary}" TextColor="White"
+                                                    Command="{Binding BindingContext.DeleteBoardCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                    CommandParameter="{Binding .}"/>
+                                        </HorizontalStackLayout>
+                                        <!-- Bottom overlay -->
+                                        <Border BackgroundColor="#B0000000" StrokeThickness="0" VerticalOptions="End" Padding="8,6">
+                                            <VerticalStackLayout Spacing="0">
+                                                <Label Text="{Binding Name}" FontSize="12" FontAttributes="Bold"
+                                                       TextColor="White" LineBreakMode="TailTruncation"/>
+                                                <Label Text="{Binding CountLabel}" FontSize="10" TextColor="#DDDDDD"/>
+                                                <Label Text="{Binding ChildLabel}" FontSize="10" TextColor="#DDDDDD"
+                                                       IsVisible="{Binding HasChildren}"/>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- Image grid -->
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Images}" Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ImageCard">
+                                <Border WidthRequest="140" HeightRequest="160" Margin="0,0,12,12"
+                                        StrokeShape="RoundRectangle 8" StrokeThickness="2" Stroke="Transparent"
+                                        BackgroundColor="{StaticResource StashSidebar}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenImageCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid>
+                                        <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}"
+                                               Aspect="AspectFill"/>
+                                        <!-- Title overlay -->
+                                        <Border BackgroundColor="#80000000" StrokeThickness="0" VerticalOptions="End"
+                                                Padding="4,2" IsVisible="{Binding HasTitle}">
+                                            <Label Text="{Binding Title}" FontSize="10" TextColor="White" LineBreakMode="TailTruncation"/>
+                                        </Border>
+                                        <!-- Organize selection -->
+                                        <Border IsVisible="{Binding BindingContext.IsOrganizing, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                BackgroundColor="Transparent" StrokeThickness="0">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleOrgImageCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <CheckBox IsChecked="{Binding IsOrgSelected}" HorizontalOptions="End" VerticalOptions="Start"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- Empty state -->
+                    <VerticalStackLayout Spacing="10" Padding="40" IsVisible="{Binding IsGalleryEmpty}">
+                        <Label Text="No inspiration yet" FontSize="20" FontAttributes="Bold"
+                               HorizontalOptions="Center" TextColor="{StaticResource StashText}"/>
+                        <Label Text="Tap + Add Image to save a picture, or + New Board to organize your references."
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource StashTextMuted}"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
-            </CollectionView.EmptyView>
-        </CollectionView>
+            </ScrollView>
+        </Grid>
 
-        <ActivityIndicator Grid.Row="2" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
-                           VerticalOptions="Center" HorizontalOptions="Center"/>
+        <!-- ═══════════ ADD IMAGE FORM ═══════════ -->
+        <ScrollView IsVisible="{Binding IsAddingImage}" BackgroundColor="{StaticResource StashBackground}">
+            <VerticalStackLayout MaximumWidthRequest="600" Padding="24" Spacing="12" HorizontalOptions="Center">
+                <Button Text="Cancel" Style="{StaticResource SecondaryButton}" HorizontalOptions="Start"
+                        Command="{Binding CancelAddImageCommand}"/>
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Add Inspiration Image" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+
+                        <Label Text="Add to Board" Style="{StaticResource FieldLabel}"/>
+                        <Button Text="{Binding BoardsDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleBoardPickerCommand}"/>
+                        <FlexLayout BindableLayout.ItemsSource="{Binding AddBoardOptions}" Wrap="Wrap" IsVisible="{Binding BoardPickerOpen}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CheckOption">
+                                    <Border Style="{StaticResource PickChip}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ToggleBoardOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+
+                        <Label Text="Color (optional)" Style="{StaticResource FieldLabel}"/>
+                        <Button Text="{Binding ColorsDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleColorPickerCommand}"/>
+                        <FlexLayout BindableLayout.ItemsSource="{Binding AddColorOptions}" Wrap="Wrap" IsVisible="{Binding ColorPickerOpen}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CheckOption">
+                                    <Border Style="{StaticResource PickChip}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ToggleColorOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+
+                        <Label Text="TE Color (optional)" Style="{StaticResource FieldLabel}"/>
+                        <Button Text="{Binding TeColorsDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleTeColorPickerCommand}"/>
+                        <FlexLayout BindableLayout.ItemsSource="{Binding AddTeColorOptions}" Wrap="Wrap" IsVisible="{Binding TeColorPickerOpen}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CheckOption">
+                                    <Border Style="{StaticResource PickChip}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ToggleTeColorOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+
+                        <!-- Items Used -->
+                        <Label Text="Items Used (optional)" Style="{StaticResource FieldLabel}"/>
+                        <FlexLayout BindableLayout.ItemsSource="{Binding AddItemTags}" Wrap="Wrap">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ItemTag">
+                                    <Border BackgroundColor="{StaticResource StashPrimary}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6" Padding="8,4" Margin="0,0,6,6">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.RemoveItemTagCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Name}" FontSize="12" TextColor="White"/>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                        <Button Text="+ Add items used" Style="{StaticResource SecondaryButton}" HorizontalOptions="Start"
+                                Command="{Binding StartAddItemUsedCommand}"
+                                IsVisible="{Binding ItemStepActive, Converter={StaticResource InvertedBoolConverter}}"/>
+                        <!-- Item step picker -->
+                        <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource StashSidebar}" IsVisible="{Binding ItemStepActive}">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Type" Style="{StaticResource FieldLabel}"/>
+                                <Picker Title="Choose a type" ItemsSource="{Binding ItemStepTypes}" SelectedItem="{Binding ItemStepType}" TextColor="{StaticResource StashText}"/>
+                                <Label Text="Item" Style="{StaticResource FieldLabel}"/>
+                                <Picker Title="Choose an item" ItemsSource="{Binding ItemStepOptions}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding ItemStepSelected}" TextColor="{StaticResource StashText}"/>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelAddItemUsedCommand}"/>
+                                    <Button Text="Confirm" Style="{StaticResource PrimaryButton}" Command="{Binding ConfirmAddItemUsedCommand}" IsEnabled="{Binding CanConfirmItem}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                        <!-- More items prompt -->
+                        <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource StashSidebar}" IsVisible="{Binding ItemMorePrompt}">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Were more items used?" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Button Text="No" BackgroundColor="{StaticResource StashPrimary}" TextColor="White" CornerRadius="10" Padding="16,8" Command="{Binding FinishAddItemsCommand}"/>
+                                    <Button Text="Yes" Style="{StaticResource SecondaryButton}" Command="{Binding AddMoreItemsCommand}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="Sentiment (optional)" Style="{StaticResource FieldLabel}"/>
+                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                            <Entry Placeholder="Type the sentiment text..." Text="{Binding NewImageSentiment}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+
+                        <Label Text="Theme (optional)" Style="{StaticResource FieldLabel}"/>
+                        <Button Text="{Binding ThemesDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleThemePickerCommand}"/>
+                        <FlexLayout BindableLayout.ItemsSource="{Binding AddThemeOptions}" Wrap="Wrap" IsVisible="{Binding ThemePickerOpen}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CheckOption">
+                                    <Border Style="{StaticResource PickChip}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ToggleThemeOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+
+                        <!-- Pick image -->
+                        <Label Text="Select Image" Style="{StaticResource FieldLabel}"/>
+                        <Border HeightRequest="200" StrokeShape="RoundRectangle 8" StrokeThickness="2"
+                                Stroke="{StaticResource StashBorder}" BackgroundColor="{StaticResource StashSidebar}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickImageCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Grid>
+                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center"
+                                                     IsVisible="{Binding NewImageUrl, Converter={StaticResource IsNotNullConverter}, ConverterParameter=invert}">
+                                    <Label Text="Click to choose an image" FontSize="14" TextColor="{StaticResource StashTextMuted}" HorizontalOptions="Center"/>
+                                    <Label Text="Supports JPG, PNG, WEBP" FontSize="12" TextColor="{StaticResource StashTextMuted}" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <Image Source="{Binding NewImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"
+                                       IsVisible="{Binding NewImageUrl, Converter={StaticResource IsNotNullConverter}}"/>
+                            </Grid>
+                        </Border>
+
+                        <HorizontalStackLayout Spacing="12" Margin="0,8,0,0">
+                            <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelAddImageCommand}"/>
+                            <Button Text="Save" Style="{StaticResource PrimaryButton}" Command="{Binding SaveImageCommand}" IsEnabled="{Binding CanSaveImage}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ═══════════ BOARD CREATE/EDIT MODAL ═══════════ -->
+        <Grid IsVisible="{Binding IsBoardModalOpen}" BackgroundColor="#80000000">
+            <Border WidthRequest="480" MaximumHeightRequest="720" VerticalOptions="Center" HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource StashCard}"
+                    Stroke="{StaticResource StashBorder}" StrokeThickness="1" Padding="0">
+                <ScrollView>
+                    <VerticalStackLayout Padding="24" Spacing="10">
+                        <Label Text="{Binding BoardModalTitle}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+
+                        <Label Text="Board Name *" Style="{StaticResource FieldLabel}"/>
+                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                            <Entry Placeholder="Enter board name..." Text="{Binding NewBoardName}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+
+                        <Label Text="Description (optional)" Style="{StaticResource FieldLabel}"/>
+                        <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,6">
+                            <Editor Placeholder="Enter description..." Text="{Binding NewBoardDescription}" AutoSize="TextChanges" MinimumHeightRequest="70" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                        </Border>
+
+                        <HorizontalStackLayout Spacing="8">
+                            <CheckBox IsChecked="{Binding NewBoardSetDefaults}"/>
+                            <Label Text="Set auto-defaults for images in this board" VerticalOptions="Center" TextColor="{StaticResource StashText}"/>
+                        </HorizontalStackLayout>
+
+                        <VerticalStackLayout Spacing="10" IsVisible="{Binding NewBoardSetDefaults}">
+                            <Label Text="Applied to images added to this board." FontSize="11" TextColor="{StaticResource StashTextMuted}"/>
+
+                            <Label Text="Default Types" Style="{StaticResource FieldLabel}"/>
+                            <Button Text="{Binding BoardDefTypesDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleBoardDefTypeCommand}"/>
+                            <FlexLayout BindableLayout.ItemsSource="{Binding BoardDefaultTypeOptions}" Wrap="Wrap" IsVisible="{Binding BoardDefTypeOpen}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CheckOption">
+                                        <Border Style="{StaticResource PickChip}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleBoardDefTypeOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/><Setter Property="FontAttributes" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+
+                            <Label Text="Default Themes" Style="{StaticResource FieldLabel}"/>
+                            <Button Text="{Binding BoardDefThemesDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleBoardDefThemeCommand}"/>
+                            <FlexLayout BindableLayout.ItemsSource="{Binding BoardDefaultThemeOptions}" Wrap="Wrap" IsVisible="{Binding BoardDefThemeOpen}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CheckOption">
+                                        <Border Style="{StaticResource PickChip}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleBoardDefThemeOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/><Setter Property="FontAttributes" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+
+                            <Label Text="Default Colors" Style="{StaticResource FieldLabel}"/>
+                            <Button Text="{Binding BoardDefColorsDisplay}" Style="{StaticResource DropdownBtn}" Command="{Binding ToggleBoardDefColorCommand}"/>
+                            <FlexLayout BindableLayout.ItemsSource="{Binding BoardDefaultColorOptions}" Wrap="Wrap" IsVisible="{Binding BoardDefColorOpen}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CheckOption">
+                                        <Border Style="{StaticResource PickChip}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleBoardDefColorOptionCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="{Binding Label}" FontSize="12" TextColor="{StaticResource StashText}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource StashPrimary}"/><Setter Property="FontAttributes" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+
+                            <Label Text="Default Sentiment" Style="{StaticResource FieldLabel}"/>
+                            <Border BackgroundColor="{StaticResource StashSurface}" Stroke="{StaticResource StashBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="14,4">
+                                <Entry Placeholder="Enter default sentiment text..." Text="{Binding NewBoardDefaultSentiment}" BackgroundColor="Transparent" TextColor="{StaticResource StashText}"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <HorizontalStackLayout Spacing="12" Margin="0,8,0,0" HorizontalOptions="End">
+                            <Button Text="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelBoardCommand}"/>
+                            <Button Text="Save Board" Style="{StaticResource PrimaryButton}" Command="{Binding SaveBoardCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
+
+        <!-- ═══════════ IMAGE DETAIL POPUP ═══════════ -->
+        <Grid IsVisible="{Binding IsDetailOpen}" BackgroundColor="#80000000">
+            <Border MaximumWidthRequest="860" MaximumHeightRequest="760" Margin="32" VerticalOptions="Center" HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource StashCard}"
+                    Stroke="{StaticResource StashBorder}" StrokeThickness="1" Padding="0">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="20,16,20,12">
+                        <Label Text="{Binding DetailTitle}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="✕" FontSize="16" WidthRequest="32" HeightRequest="32" Padding="0"
+                                CornerRadius="16" BackgroundColor="{StaticResource StashSidebar}" TextColor="{StaticResource StashText}"
+                                Command="{Binding CloseDetailCommand}"/>
+                    </Grid>
+                    <ScrollView Grid.Row="1">
+                        <Grid ColumnDefinitions="*,20,280" Padding="20,0,20,20" RowDefinitions="Auto">
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" StrokeThickness="0" MinimumHeightRequest="300" BackgroundColor="{StaticResource StashSidebar}">
+                                <Image Source="{Binding DetailImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"/>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="2" Spacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Date Added" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailDate}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailColor, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="Color" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailColor}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailTeColor, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="TE Color" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailTeColor}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailTypes, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="Type" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailTypes}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailTheme, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="Theme" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailTheme}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailSentiment, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="Sentiment" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailSentiment}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Spacing="2" IsVisible="{Binding DetailNotes, Converter={StaticResource IsNotNullConverter}}">
+                                    <Label Text="Notes" Style="{StaticResource FieldLabel}"/>
+                                    <Label Text="{Binding DetailNotes}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </VerticalStackLayout>
+
+                                <Label Text="Items Used" Style="{StaticResource FieldLabel}" Margin="0,4,0,0"/>
+                                <Label Text="None linked" FontSize="13" TextColor="{StaticResource StashTextMuted}"
+                                       IsVisible="{Binding DetailHasItems, Converter={StaticResource InvertedBoolConverter}}"/>
+                                <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding DetailItems}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:LinkedItemRow">
+                                            <Border BackgroundColor="{StaticResource StashSidebar}" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="10,6">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenLinkedItemCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <VerticalStackLayout Spacing="1">
+                                                    <Label Text="{Binding Name}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                                    <Label Text="{Binding Meta}" FontSize="11" TextColor="{StaticResource StashTextMuted}"/>
+                                                </VerticalStackLayout>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout Spacing="8" Margin="0,10,0,0">
+                                    <Button Text="Move" Style="{StaticResource SecondaryButton}" Command="{Binding StartMoveImageCommand}"/>
+                                    <Button Text="Delete Photo" BackgroundColor="{StaticResource StashPrimary}" TextColor="White" CornerRadius="10" Padding="16,8" Command="{Binding DeleteImageCommand}"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Move target picker -->
+                                <Border IsVisible="{Binding IsMoveOpen}" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource StashSidebar}">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Move to board" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                        <VerticalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding MoveTargets}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:CheckOption">
+                                                    <Border BackgroundColor="{StaticResource StashSurface}" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="10,6">
+                                                        <Border.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding BindingContext.MoveImageToCommand, Source={x:Reference Root}, x:DataType=ContentView}" CommandParameter="{Binding .}"/>
+                                                        </Border.GestureRecognizers>
+                                                        <Label Text="{Binding Label}" FontSize="13" TextColor="{StaticResource StashText}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+                                        <Button Text="Cancel" Style="{StaticResource SecondaryButton}" HorizontalOptions="Start" Command="{Binding CancelMoveCommand}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </ScrollView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loading overlay -->
+        <Grid IsVisible="{Binding IsLoading}" BackgroundColor="#CCF2EEE6">
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                <ActivityIndicator IsRunning="{Binding IsLoading}"/>
+                <Label Text="Loading..." FontSize="16" TextColor="{StaticResource StashTextMuted}"/>
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </ContentView>
