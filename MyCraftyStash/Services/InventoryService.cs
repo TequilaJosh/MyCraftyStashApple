@@ -17,6 +17,23 @@ public class InventoryService
     {
         using var db = new InventoryDbContext();
         await db.Database.EnsureCreatedAsync();
+
+        // EnsureCreated won't ALTER an existing table, so add columns that were
+        // introduced after a user's DB was first created. Safe/idempotent:
+        // SQLite errors if the column exists, which we swallow.
+        await AddColumnIfMissingAsync(db, "projects", "quantity_on_hand", "INTEGER");
+    }
+
+    private static async Task AddColumnIfMissingAsync(InventoryDbContext db, string table, string column, string type)
+    {
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} ADD COLUMN {column} {type}");
+        }
+        catch (Exception)
+        {
+            // Column already exists — nothing to do.
+        }
     }
 
     /// <param name="searchMode">null = name/theme/number/sentiment; "name" = name only; "theme" = theme only.</param>
@@ -136,6 +153,68 @@ public class InventoryService
             .OrderBy(i => i.CurrentStock)
             .ThenBy(i => i.Name)
             .ToListAsync();
+    }
+
+    // ── Stock tracker (Supply Stock tab) ──────────────────────────────────────
+
+    /// <summary>Item types the Stock Tracker follows (the desktop's default
+    /// tracked-types set; consumables where a running count matters).</summary>
+    public static IReadOnlyList<string> TrackedTypes { get; } = new[]
+    {
+        "Cardstock", "Glitter Cardstock", "Foil Cardstock", "Watercolor",
+        "A2 Card Bases", "A7 Card Bases", "Mini Slim Card Bases",
+        "A2 Envelopes", "A7 Envelopes", "Mini Slim Envelopes", "Foil-its", "Foils",
+    };
+
+    public static bool IsTrackedType(string? type) =>
+        !string.IsNullOrEmpty(type) &&
+        TrackedTypes.Any(t => string.Equals(t, type, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>All items whose type is tracked, for the Supply Stock tab
+    /// (null stock counts as 0).</summary>
+    public async Task<List<Item>> GetTrackedSupplyItemsAsync()
+    {
+        using var db = new InventoryDbContext();
+        var all = await db.Items.AsNoTracking().ToListAsync();
+        return all.Where(i => IsTrackedType(i.Type)).OrderBy(i => i.Name).ToList();
+    }
+
+    /// <summary>Sets an item's current stock count.</summary>
+    public async Task UpdateItemStockAsync(int itemId, int newStock)
+    {
+        using var db = new InventoryDbContext();
+        var item = await db.Items.FindAsync(itemId);
+        if (item is null) return;
+        item.CurrentStock = newStock;
+        await db.SaveChangesAsync();
+    }
+
+    // ── Stock tracker (Project Inventory tab) ─────────────────────────────────
+
+    /// <summary>Projects with a finished-card on-hand count set (the tracked set).</summary>
+    public async Task<List<Project>> GetTrackedProjectsAsync()
+    {
+        using var db = new InventoryDbContext();
+        return await db.Projects.AsNoTracking()
+            .Where(p => p.QuantityOnHand != null)
+            .OrderBy(p => p.Name)
+            .ToListAsync();
+    }
+
+    /// <summary>All projects (for choosing which to track in the inventory tab).</summary>
+    public async Task<List<Project>> GetAllProjectsForStockAsync()
+    {
+        using var db = new InventoryDbContext();
+        return await db.Projects.AsNoTracking().OrderBy(p => p.Name).ToListAsync();
+    }
+
+    public async Task UpdateProjectQuantityOnHandAsync(int projectId, int? quantity)
+    {
+        using var db = new InventoryDbContext();
+        var p = await db.Projects.FindAsync(projectId);
+        if (p is null) return;
+        p.QuantityOnHand = quantity;
+        await db.SaveChangesAsync();
     }
 
     // ── Item images (gallery) ────────────────────────────────────────────────

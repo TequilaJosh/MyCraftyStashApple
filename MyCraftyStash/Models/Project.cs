@@ -34,6 +34,10 @@ namespace MyCraftyStash.Models
         public string? SharedFromName { get; set; }
         public DateTime? SharedAt { get; set; }
 
+        // Finished-card inventory for the Stock Tracker's "Project Inventory" tab.
+        // Null = not tracked; a value = how many made cards are on hand.
+        public int? QuantityOnHand { get; set; }
+
         public virtual ICollection<ProjectItem> ProjectItems { get; set; } = new List<ProjectItem>();
         public virtual ICollection<ProjectImage> Images { get; set; } = new List<ProjectImage>();
         public virtual ICollection<ProjectCreation> Creations { get; set; } = new List<ProjectCreation>();
