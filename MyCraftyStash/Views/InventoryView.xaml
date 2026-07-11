@@ -12,39 +12,70 @@
         <!-- Header + search + filters -->
         <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="24,18,24,8">
             <Label Text="My Crafty Stash  /  Inventory" Style="{StaticResource Breadcrumb}"/>
-            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
-                <Label Text="Inventory" Style="{StaticResource PageTitle}"/>
-                <Button Grid.Column="1" Text="+ Add Item" Command="{Binding AddItemCommand}"
-                        Style="{StaticResource PrimaryButton}" VerticalOptions="Center"/>
-            </Grid>
-            <Label Text="Manage your craft supplies — search, filter, and add new items."
+            <Label Text="Inventory" Style="{StaticResource PageTitle}" Margin="0,4,0,0"/>
+            <Label Text="Manage your craft supplies — search, sort, and add new items."
                    Style="{StaticResource PageSubtitle}"/>
 
-            <!-- Search row -->
-            <Grid ColumnDefinitions="*,180,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0">
-                <Entry Grid.Column="0" Text="{Binding SearchText}" Placeholder="Search your stash"
-                       ReturnCommand="{Binding SearchCommand}"/>
-                <Picker Grid.Column="1" ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Title="All types"/>
-                <Button Grid.Column="2" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"/>
-                <Button Grid.Column="3" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"/>
+            <!-- Toolbar: everything aligned on one row, uniform 42px height -->
+            <Grid ColumnDefinitions="*,190,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0"
+                  VerticalOptions="Start">
+                <!-- Search -->
+                <Border Grid.Column="0" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,0" HeightRequest="42" VerticalOptions="Start">
+                    <Entry Text="{Binding SearchText}" Placeholder="Search your stash" ReturnCommand="{Binding SearchCommand}"
+                           BackgroundColor="Transparent" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                </Border>
+                <!-- Type dropdown -->
+                <Border Grid.Column="1" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,0" HeightRequest="42" VerticalOptions="Start">
+                    <Picker ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Title="All types"
+                            BackgroundColor="Transparent" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                </Border>
+                <!-- Search / Clear / No image / Add -->
+                <Button Grid.Column="2" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"
+                        HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
+                <Button Grid.Column="3" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"
+                        HeightRequest="42" Padding="16,0" VerticalOptions="Start"/>
+                <Button Grid.Column="4" Text="No image" Command="{Binding ToggleNoImageCommand}" Style="{StaticResource SecondaryButton}"
+                        HeightRequest="42" Padding="16,0" VerticalOptions="Start">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding NoImageOnly}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <Button Grid.Column="5" Text="+ Add Item" Command="{Binding AddItemCommand}" Style="{StaticResource PrimaryButton}"
+                        HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
+                <!-- Search-mode checkboxes (right) -->
+                <VerticalStackLayout Grid.Column="6" Spacing="0" VerticalOptions="Start">
+                    <HorizontalStackLayout Spacing="2">
+                        <CheckBox IsChecked="{Binding NameOnly}" HeightRequest="22" WidthRequest="22"/>
+                        <Label Text="Name only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="2">
+                        <CheckBox IsChecked="{Binding ThemeOnly}" HeightRequest="22" WidthRequest="22"/>
+                        <Label Text="Theme only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="2">
+                        <CheckBox IsChecked="{Binding DiscontinuedOnly}" HeightRequest="22" WidthRequest="22"/>
+                        <Label Text="Discontinued only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
             </Grid>
 
-            <!-- Filter toggles -->
-            <HorizontalStackLayout Spacing="18" Margin="0,10,0,0">
-                <HorizontalStackLayout Spacing="4">
-                    <CheckBox IsChecked="{Binding NameOnly}"/>
-                    <Label Text="Name only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Spacing="4">
-                    <CheckBox IsChecked="{Binding ThemeOnly}"/>
-                    <Label Text="Theme only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Spacing="4">
-                    <CheckBox IsChecked="{Binding DiscontinuedOnly}"/>
-                    <Label Text="Discontinued only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                </HorizontalStackLayout>
-                <Label Text="{Binding ResultSummary}" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
-            </HorizontalStackLayout>
+            <!-- Subtype filter checkboxes (appear when a type is selected) -->
+            <FlexLayout Wrap="Wrap" Margin="0,10,0,0" IsVisible="{Binding HasSubtypeFilters}"
+                        BindableLayout.ItemsSource="{Binding SubtypeFilters}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CheckOption">
+                        <HorizontalStackLayout Spacing="2" Margin="0,0,16,4">
+                            <CheckBox IsChecked="{Binding IsSelected}" HeightRequest="22" WidthRequest="22"/>
+                            <Label Text="{Binding Label}" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
         </VerticalStackLayout>
 
         <RefreshView Grid.Row="1" Command="{Binding DoRefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
