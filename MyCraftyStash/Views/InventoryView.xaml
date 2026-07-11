@@ -16,8 +16,11 @@
             <Label Text="Manage your craft supplies — search, sort, and add new items."
                    Style="{StaticResource PageSubtitle}"/>
 
-            <!-- Toolbar: everything aligned on one row, uniform 42px height -->
-            <Grid ColumnDefinitions="*,168,168,Auto,Auto,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0"
+            <!-- Toolbar: everything aligned on one row, uniform 42px height.
+                 The button columns use FIXED widths (not Auto) so the dropdown
+                 overlay grid can reproduce the exact same column layout and
+                 anchor each list directly under its button. -->
+            <Grid ColumnDefinitions="*,168,168,104,84,108,124" ColumnSpacing="10" Margin="0,14,0,0"
                   VerticalOptions="Start">
                 <!-- Search -->
                 <Border Grid.Column="0" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
@@ -51,11 +54,11 @@
                 </Border>
                 <!-- Search / Clear / No image / Add -->
                 <Button Grid.Column="3" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"
-                        HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
+                        HeightRequest="42" Padding="18,0" VerticalOptions="Start" HorizontalOptions="Fill"/>
                 <Button Grid.Column="4" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"
-                        HeightRequest="42" Padding="16,0" VerticalOptions="Start"/>
+                        HeightRequest="42" Padding="16,0" VerticalOptions="Start" HorizontalOptions="Fill"/>
                 <Button Grid.Column="5" Text="No image" Command="{Binding ToggleNoImageCommand}" Style="{StaticResource SecondaryButton}"
-                        HeightRequest="42" Padding="16,0" VerticalOptions="Start">
+                        HeightRequest="42" Padding="16,0" VerticalOptions="Start" HorizontalOptions="Fill">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding NoImageOnly}" Value="True">
                             <Setter Property="BackgroundColor" Value="{StaticResource StashPrimary}"/>
@@ -64,7 +67,7 @@
                     </Button.Triggers>
                 </Button>
                 <Button Grid.Column="6" Text="+ Add Item" Command="{Binding AddItemCommand}" Style="{StaticResource PrimaryButton}"
-                        HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
+                        HeightRequest="42" Padding="18,0" VerticalOptions="Start" HorizontalOptions="Fill"/>
             </Grid>
 
             <!-- Subtype filter checkboxes (appear when a type is selected) -->
@@ -158,7 +161,7 @@
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding CloseDropdownsCommand}"/>
             </Grid.GestureRecognizers>
-            <Grid ColumnDefinitions="*,168,168,Auto,Auto,Auto,Auto" ColumnSpacing="10" Padding="24,0"
+            <Grid ColumnDefinitions="*,168,168,104,84,108,124" ColumnSpacing="10" Padding="24,0"
                   VerticalOptions="Start" Margin="0,152,0,0">
                 <!-- Type list, under the type button (col 1) -->
                 <Border Grid.Column="1" IsVisible="{Binding TypeDropdownOpen}" WidthRequest="240" HorizontalOptions="Start"
