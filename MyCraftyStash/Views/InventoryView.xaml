@@ -55,32 +55,52 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Item">
-                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
-                                BackgroundColor="{StaticResource StashCard}" Padding="10">
+                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="{StaticResource StashBorder}"
+                                BackgroundColor="{StaticResource StashCard}" Padding="10" HeightRequest="238">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding BindingContext.OpenItemCommand, Source={x:Reference Root}, x:DataType=ContentView}"
                                                       CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>
-                            <VerticalStackLayout Spacing="6">
-                                <Grid HeightRequest="120">
+                            <!-- Fixed-height card: photo fills the top, name/theme pinned to the bottom -->
+                            <Grid RowDefinitions="*,Auto" RowSpacing="8">
+                                <!-- Photo + overlaid badges (white backdrop hides pillarbox bars) -->
+                                <Grid Grid.Row="0">
                                     <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White">
                                         <Image Source="{Binding ImageUrl, Converter={StaticResource ImageStringConverter}}" Aspect="AspectFit"/>
                                     </Border>
-                                    <Border IsVisible="{Binding IsDiscontinued}" StrokeThickness="0" StrokeShape="RoundRectangle 4"
-                                            BackgroundColor="{StaticResource ErrorRed}" Padding="6,2"
-                                            HorizontalOptions="Start" VerticalOptions="Start" Margin="6">
+                                    <!-- Subtype/type badge (top-left) -->
+                                    <Border BackgroundColor="{StaticResource StashBadge}" StrokeThickness="0" StrokeShape="RoundRectangle 4"
+                                            Padding="6,2" HorizontalOptions="Start" VerticalOptions="Start" Margin="8">
+                                        <Label Text="{Binding TypeSubtypeBadge}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                    </Border>
+                                    <!-- Layers badge (bottom-right, stencils) -->
+                                    <Border BackgroundColor="{StaticResource StashPrimary}" StrokeThickness="0" StrokeShape="RoundRectangle 4"
+                                            Padding="6,2" HorizontalOptions="End" VerticalOptions="End" Margin="8"
+                                            IsVisible="{Binding ShowLayersBadge}">
+                                        <Label Text="{Binding LayersText}" FontSize="10" FontAttributes="Bold" TextColor="White"/>
+                                    </Border>
+                                    <!-- Discontinued badge (bottom-left) -->
+                                    <Border BackgroundColor="{StaticResource ErrorRed}" StrokeThickness="0" StrokeShape="RoundRectangle 4"
+                                            Padding="6,2" HorizontalOptions="Start" VerticalOptions="End" Margin="8"
+                                            IsVisible="{Binding IsDiscontinued}">
                                         <Label Text="Discontinued" FontSize="10" FontAttributes="Bold" TextColor="White"/>
                                     </Border>
                                 </Grid>
-                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14"
-                                       TextColor="{StaticResource StashText}" MaxLines="2" LineBreakMode="TailTruncation"/>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource StashTextMuted}"/>
-                                    <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:C}'}" FontSize="12"
-                                           IsVisible="{Binding Price, Converter={StaticResource IsNotNullConverter}}"
-                                           TextColor="{StaticResource StashText}"/>
+                                <!-- Name + theme (left) and stock badge (right) -->
+                                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="End">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14"
+                                               TextColor="{StaticResource StashText}" MaxLines="2" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Theme}" FontSize="12" TextColor="{StaticResource StashPrimary}"
+                                               MaxLines="1" LineBreakMode="TailTruncation" IsVisible="{Binding HasTheme}"/>
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="1" BackgroundColor="{StaticResource StashSidebar}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 4" Padding="6,2" VerticalOptions="End"
+                                            IsVisible="{Binding HasStock}">
+                                        <Label Text="{Binding StockText}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource StashText}"/>
+                                    </Border>
                                 </Grid>
-                            </VerticalStackLayout>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

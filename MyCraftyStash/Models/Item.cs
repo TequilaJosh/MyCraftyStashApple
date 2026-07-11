@@ -82,5 +82,30 @@ namespace MyCraftyStash.Models
         /// recorded purchases never falsely read as sold.</summary>
         [NotMapped]
         public bool IsSoldOut => TotalBought > 0 && TotalSold >= TotalBought;
+
+        // ── Inventory card display helpers ──
+        /// <summary>Type badge shown top-left on the card: "Type - Subtype" when a
+        /// subtype is set, otherwise just the type.</summary>
+        [NotMapped]
+        public string TypeSubtypeBadge =>
+            string.IsNullOrWhiteSpace(Subtype) ? Type : $"{Type} - {Subtype}";
+
+        [NotMapped]
+        public bool ShowLayersBadge =>
+            StencilLayers.HasValue &&
+            !string.IsNullOrEmpty(Type) &&
+            Type.Contains("stencil", System.StringComparison.OrdinalIgnoreCase);
+
+        [NotMapped]
+        public string LayersText => $"{StencilLayers} layers";
+
+        [NotMapped]
+        public bool HasTheme => !string.IsNullOrWhiteSpace(Theme);
+
+        [NotMapped]
+        public bool HasStock => CurrentStock.HasValue;
+
+        [NotMapped]
+        public string StockText => $"{CurrentStock} left";
     }
 }
