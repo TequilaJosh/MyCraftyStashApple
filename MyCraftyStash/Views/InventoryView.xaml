@@ -17,26 +17,44 @@
                    Style="{StaticResource PageSubtitle}"/>
 
             <!-- Toolbar: everything aligned on one row, uniform 42px height -->
-            <Grid ColumnDefinitions="*,190,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0"
+            <Grid ColumnDefinitions="*,168,168,Auto,Auto,Auto,Auto" ColumnSpacing="10" Margin="0,14,0,0"
                   VerticalOptions="Start">
                 <!-- Search -->
                 <Border Grid.Column="0" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,0" HeightRequest="42" VerticalOptions="Start">
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="42" VerticalOptions="Start">
                     <Entry Text="{Binding SearchText}" Placeholder="Search your stash" ReturnCommand="{Binding SearchCommand}"
                            BackgroundColor="Transparent" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
                 </Border>
-                <!-- Type dropdown -->
+                <!-- Type dropdown (custom: value always shown + ▾) -->
                 <Border Grid.Column="1" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="8,0" HeightRequest="42" VerticalOptions="Start">
-                    <Picker ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Title="All types"
-                            BackgroundColor="Transparent" TextColor="{StaticResource StashText}" VerticalOptions="Center"/>
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="42" VerticalOptions="Start">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleTypeDropdownCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto" Padding="12,0">
+                        <Label Text="{Binding SelectedType}" TextColor="{StaticResource StashText}" FontSize="14"
+                               VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                        <Label Grid.Column="1" Text="▾" TextColor="{StaticResource StashTextMuted}" FontSize="16" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Search-scope dropdown (replaces the checkboxes) -->
+                <Border Grid.Column="2" BackgroundColor="{StaticResource StashInput}" Stroke="{StaticResource StashBorder}"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="42" VerticalOptions="Start">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleScopeDropdownCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto" Padding="12,0">
+                        <Label Text="{Binding SearchScope}" TextColor="{StaticResource StashText}" FontSize="14"
+                               VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                        <Label Grid.Column="1" Text="▾" TextColor="{StaticResource StashTextMuted}" FontSize="16" VerticalOptions="Center"/>
+                    </Grid>
                 </Border>
                 <!-- Search / Clear / No image / Add -->
-                <Button Grid.Column="2" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"
+                <Button Grid.Column="3" Text="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"
                         HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
-                <Button Grid.Column="3" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"
+                <Button Grid.Column="4" Text="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"
                         HeightRequest="42" Padding="16,0" VerticalOptions="Start"/>
-                <Button Grid.Column="4" Text="No image" Command="{Binding ToggleNoImageCommand}" Style="{StaticResource SecondaryButton}"
+                <Button Grid.Column="5" Text="No image" Command="{Binding ToggleNoImageCommand}" Style="{StaticResource SecondaryButton}"
                         HeightRequest="42" Padding="16,0" VerticalOptions="Start">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding NoImageOnly}" Value="True">
@@ -45,23 +63,8 @@
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
-                <Button Grid.Column="5" Text="+ Add Item" Command="{Binding AddItemCommand}" Style="{StaticResource PrimaryButton}"
+                <Button Grid.Column="6" Text="+ Add Item" Command="{Binding AddItemCommand}" Style="{StaticResource PrimaryButton}"
                         HeightRequest="42" Padding="18,0" VerticalOptions="Start"/>
-                <!-- Search-mode checkboxes (right) -->
-                <VerticalStackLayout Grid.Column="6" Spacing="0" VerticalOptions="Start">
-                    <HorizontalStackLayout Spacing="2">
-                        <CheckBox IsChecked="{Binding NameOnly}" HeightRequest="22" WidthRequest="22"/>
-                        <Label Text="Name only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="2">
-                        <CheckBox IsChecked="{Binding ThemeOnly}" HeightRequest="22" WidthRequest="22"/>
-                        <Label Text="Theme only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="2">
-                        <CheckBox IsChecked="{Binding DiscontinuedOnly}" HeightRequest="22" WidthRequest="22"/>
-                        <Label Text="Discontinued only" VerticalOptions="Center" FontSize="12" TextColor="{StaticResource StashText}"/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
             </Grid>
 
             <!-- Subtype filter checkboxes (appear when a type is selected) -->
@@ -148,5 +151,54 @@
 
         <ActivityIndicator Grid.Row="1" IsRunning="{Binding Busy}" IsVisible="{Binding Busy}"
                            VerticalOptions="Center" HorizontalOptions="Center"/>
+
+        <!-- Dropdown overlay: transparent (tap outside to close); lists anchored
+             under their trigger via a column grid that mirrors the toolbar -->
+        <Grid Grid.RowSpan="2" IsVisible="{Binding AnyDropdownOpen}" BackgroundColor="Transparent">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseDropdownsCommand}"/>
+            </Grid.GestureRecognizers>
+            <Grid ColumnDefinitions="*,168,168,Auto,Auto,Auto,Auto" ColumnSpacing="10" Padding="24,0"
+                  VerticalOptions="Start" Margin="0,152,0,0">
+                <!-- Type list, under the type button (col 1) -->
+                <Border Grid.Column="1" IsVisible="{Binding TypeDropdownOpen}" WidthRequest="240" HorizontalOptions="Start"
+                        MaximumHeightRequest="420" BackgroundColor="{StaticResource StashCard}" Stroke="{StaticResource StashBorder}"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="6">
+                    <ScrollView MaximumHeightRequest="408">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Types}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border BackgroundColor="Transparent" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="12,9">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SelectTypeCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding .}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Border>
+                <!-- Scope list, under the scope button (col 2) -->
+                <Border Grid.Column="2" IsVisible="{Binding ScopeDropdownOpen}" WidthRequest="200" HorizontalOptions="Start"
+                        BackgroundColor="{StaticResource StashCard}" Stroke="{StaticResource StashBorder}"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="6">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding ScopeOptions}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Border BackgroundColor="Transparent" StrokeThickness="0" StrokeShape="RoundRectangle 6" Padding="12,9">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectScopeCommand, Source={x:Reference Root}, x:DataType=ContentView}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding .}" FontSize="14" TextColor="{StaticResource StashText}"/>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
     </Grid>
 </ContentView>

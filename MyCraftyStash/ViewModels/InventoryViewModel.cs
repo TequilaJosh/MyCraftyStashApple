@@ -24,11 +24,13 @@ public partial class InventoryViewModel : ObservableObject, IRefreshOnReturn
     /// <summary>Subtype checkboxes for the selected type (empty for "All types").</summary>
     public ObservableCollection<CheckOption> SubtypeFilters { get; } = new();
 
+    /// <summary>Search-scope options (replaces the old Name/Theme/Discontinued checkboxes).</summary>
+    public ObservableCollection<string> ScopeOptions { get; } = new()
+    { "Name & theme", "Name only", "Theme only", "Discontinued only" };
+
     [ObservableProperty] public partial string SearchText { get; set; }
-    [ObservableProperty] public partial string? SelectedType { get; set; }
-    [ObservableProperty] public partial bool NameOnly { get; set; } = true;
-    [ObservableProperty] public partial bool ThemeOnly { get; set; }
-    [ObservableProperty] public partial bool DiscontinuedOnly { get; set; }
+    [ObservableProperty] public partial string? SelectedType { get; set; } = "All types";
+    [ObservableProperty] public partial string SearchScope { get; set; } = "Name & theme";
     [ObservableProperty] public partial bool NoImageOnly { get; set; }
     [ObservableProperty] public partial bool HasSubtypeFilters { get; set; }
     [ObservableProperty] public partial bool Busy { get; set; }
@@ -36,12 +38,31 @@ public partial class InventoryViewModel : ObservableObject, IRefreshOnReturn
     [ObservableProperty] public partial bool IsEmpty { get; set; }
     [ObservableProperty] public partial string ResultSummary { get; set; } = "";
 
-    // "Name only" and "Theme only" are mutually exclusive.
-    partial void OnNameOnlyChanged(bool value) { if (value) ThemeOnly = false; }
-    partial void OnThemeOnlyChanged(bool value) { if (value) NameOnly = false; }
     partial void OnSelectedTypeChanged(string? value) { _ = RefreshSubtypes(); _ = Load(); }
-    partial void OnDiscontinuedOnlyChanged(bool value) => _ = Load();
+    partial void OnSearchScopeChanged(string value) => _ = Load();
     partial void OnNoImageOnlyChanged(bool value) => _ = Load();
+
+    // ── Custom dropdowns anchored under their button (value always shows) ──
+    [ObservableProperty] public partial bool TypeDropdownOpen { get; set; }
+    [ObservableProperty] public partial bool ScopeDropdownOpen { get; set; }
+    public bool AnyDropdownOpen => TypeDropdownOpen || ScopeDropdownOpen;
+    partial void OnTypeDropdownOpenChanged(bool value) => OnPropertyChanged(nameof(AnyDropdownOpen));
+    partial void OnScopeDropdownOpenChanged(bool value) => OnPropertyChanged(nameof(AnyDropdownOpen));
+
+    [RelayCommand]
+    private void ToggleTypeDropdown() { ScopeDropdownOpen = false; TypeDropdownOpen = !TypeDropdownOpen; }
+
+    [RelayCommand]
+    private void ToggleScopeDropdown() { TypeDropdownOpen = false; ScopeDropdownOpen = !ScopeDropdownOpen; }
+
+    [RelayCommand]
+    private void SelectType(string type) { SelectedType = type; TypeDropdownOpen = false; }
+
+    [RelayCommand]
+    private void SelectScope(string scope) { SearchScope = scope; ScopeDropdownOpen = false; }
+
+    [RelayCommand]
+    private void CloseDropdowns() { TypeDropdownOpen = false; ScopeDropdownOpen = false; }
 
     public Task Refresh() => Load();
 
@@ -79,9 +100,15 @@ public partial class InventoryViewModel : ObservableObject, IRefreshOnReturn
                 foreach (var t in await _service.GetTypesAsync()) Types.Add(t);
             }
 
-            string? searchMode = NameOnly ? "name" : ThemeOnly ? "theme" : null;
+            string? searchMode = SearchScope switch
+            {
+                "Name only" => "name",
+                "Theme only" => "theme",
+                _ => null,
+            };
+            bool discontinuedOnly = SearchScope == "Discontinued only";
             string? type = SelectedType is null or "All types" ? null : SelectedType;
-            var items = await _service.GetItemsAsync(SearchText, type, searchMode, DiscontinuedOnly);
+            var items = await _service.GetItemsAsync(SearchText, type, searchMode, discontinuedOnly);
 
             IEnumerable<Item> q = items;
             if (NoImageOnly)
@@ -117,8 +144,8 @@ public partial class InventoryViewModel : ObservableObject, IRefreshOnReturn
     private async Task ClearFilters()
     {
         SearchText = "";
-        NameOnly = true;
-        ThemeOnly = DiscontinuedOnly = NoImageOnly = false;
+        SearchScope = "Name & theme";
+        NoImageOnly = false;
         SelectedType = "All types";
         SubtypeFilters.Clear();
         HasSubtypeFilters = false;
